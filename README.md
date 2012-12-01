@@ -1,4 +1,4 @@
-wp-session-manager
+WP Session Manager
 ==================
 
-Session manager for WordPress
+Prototype session management for WordPress.
