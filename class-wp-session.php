@@ -69,8 +69,8 @@ class WP_Session implements ArrayAccess {
 	 * @uses apply_filters Calls `wp_session_expiration` to determine how long until sessions expire.
 	 */
 	private function __construct() {
-		if ( isset( $_COOKIE['_wp_session'] ) ) {
-			$this->session_id = stripslashes( $_COOKIE['_wp_session'] );
+		if ( isset( $_COOKIE[WP_SESSION_COOKIE] ) ) {
+			$this->session_id = stripslashes( $_COOKIE[WP_SESSION_COOKIE] );
 		} else {
 			$this->session_id = $this->generate_id();
 		}
@@ -79,7 +79,7 @@ class WP_Session implements ArrayAccess {
 
 		$this->cache_expire = intval( apply_filters( 'wp_session_expiration', 24 * 60 ) );
 
-		setcookie( '_wp_session', $this->session_id, time() + $this->cache_expire, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( WP_SESSION_COOKIE, $this->session_id, time() + $this->cache_expire, COOKIEPATH, COOKIE_DOMAIN );
 	}
 
 	/**
@@ -161,7 +161,7 @@ class WP_Session implements ArrayAccess {
 
 		$this->session_id = $this->generate_id();
 
-		setcookie( '_wp_session', $this->session_id, time() + $this->cache_expire, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( WP_SESSION_COOKIE, $this->session_id, time() + $this->cache_expire, COOKIEPATH, COOKIE_DOMAIN );
 	}
 
 	/**
