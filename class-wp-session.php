@@ -72,7 +72,7 @@ class WP_Session implements ArrayAccess {
 		if ( isset( $_COOKIE['_wp_session'] ) ) {
 			$this->session_id = stripslashes( $_COOKIE['_wp_session'] );
 		} else {
-			$this->session_id = md5( uniqid() );
+			$this->session_id = $this->generate_id();
 		}
 
 		$this->read_data();
@@ -80,6 +80,18 @@ class WP_Session implements ArrayAccess {
 		$this->cache_expire = intval( apply_filters( 'wp_session_expiration', 24 * 60 ) );
 
 		setcookie( '_wp_session', $this->session_id, time() + $this->cache_expire, COOKIEPATH, COOKIE_DOMAIN );
+	}
+
+	/**
+	 * Generate a cryptographically strong unique ID for the session token.
+	 *
+	 * @return string
+	 */
+	private function generate_id() {
+		require_once( ABSPATH . 'wp-includes/class-phpass.php');
+		$hasher = new PasswordHash( 8, false );
+
+		return md5( $hasher->get_random_bytes( 32 ) );
 	}
 
 	/**
@@ -111,6 +123,48 @@ class WP_Session implements ArrayAccess {
 	}
 
 	/**
+	 * Output the current container contents as a JSON-encoded string.
+	 *
+	 * @return string
+	 */
+	public function json_out() {
+		return json_encode( $this->container );
+	}
+
+	/**
+	 * Decodes a JSON string and, if the object is an array, overwrites the session container with its contents.
+	 *
+	 * @param string $data
+	 *
+	 * @return bool
+	 */
+	public function json_in( $data ) {
+		$array = json_decode( $data );
+
+		if ( is_array( $array ) ) {
+			$this->container = $array;
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Regenerate the current session's ID.
+	 *
+	 * @param bool $delete_old Flag whether or not to delete the old session data from the server.
+	 */
+	public function regenerate_id( $delete_old = false ) {
+		if ( $delete_old ) {
+			delete_transient( "_wp_session_{$this->session_id}" );
+		}
+
+		$this->session_id = $this->generate_id();
+
+		setcookie( '_wp_session', $this->session_id, time() + $this->cache_expire, COOKIEPATH, COOKIE_DOMAIN );
+	}
+
+	/**
 	 * Check if a session has been initialized.
 	 *
 	 * @return bool
@@ -126,6 +180,13 @@ class WP_Session implements ArrayAccess {
 	 */
 	public function cache_expiration() {
 		return $this->cache_expire;
+	}
+
+	/**
+	 * Flushes all session variables.
+	 */
+	public function reset() {
+		$this->container = array();
 	}
 
 	/**

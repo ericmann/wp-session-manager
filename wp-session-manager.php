@@ -9,5 +9,9 @@
  * License: GPLv2+
  */
 
-require_once( 'class-wp-session.php' );
-require_once( 'wp-session.php' );
+// Only include the functionality if it's not pre-defined.
+if ( ! class_exists( 'WP_Session' ) ) {
+	require_once( 'class-wp-session.php' );
+	require_once( 'wp-session.php' );
+}
+?>

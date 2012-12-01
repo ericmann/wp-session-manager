@@ -2,3 +2,75 @@ WP Session Manager
 ==================
 
 Prototype session management for WordPress.
+
+Description
+-----------
+
+Adds `$_SESSION`-like functionality to WordPress.
+
+Every visitor, logged in or not, will be issued an instance of `WP_Session`.  Their instance will be identified by an ID
+stored in the `_wp_session` cookie.  Typically, session data will be stored in a WordPress transient, but if your
+installation has a caching system in-place (i.e. memcached), the session data might be stored in memory.
+
+This provides plugin and theme authors the ability to use WordPress-managed session variables without having to use the
+standard PHP `$_SESSION` superglobal.
+
+Installation
+------------
+
+**Manual Installation**
+
+1. Upload the entire `/wp-session-manager` folder to the `/wp-content/plugins/` directory.
+1. Activate the plugin through the 'Plugins' menu in WordPress.
+1. Use `global $wp_session;` in your code.
+
+Frequently Asked Questions
+--------------------------
+
+**How do I add session variables?**
+
+First, make a reference to the global session object.  Then, use it like an associative array, just like `$_SESSION`:
+
+`global $wp_session;
+$wp_session['user_name'] = 'User Name';                            // A string
+$wp_session['user_contact'] = array( 'email' => 'user@name.com' ); // An array
+$wp_session['user_obj'] = new WP_User( 1 );                        // An object`
+
+**How long do session variables live?**
+
+By default, session variables will live for 24 minutes from the last time they were accessed - either read or write.
+
+This value can be changed by using the `wp_session_expiration` filter:
+
+`add_filter( 'wp_session_expiration', function() { return 60 * 60; } ); // Set expiration to 1 hour`
+
+Screenshots
+-----------
+
+None
+
+Changelog
+---------
+
+**1.0**
+
+- First version
+
+Upgrade Notice
+--------------
+
+**1.0**
+
+First version
+
+Additional Information
+----------------------
+
+**Contributors:** ericmann
+**Donate link:** http://jumping-duck.com/wordpress/plugins
+**Tags:** session
+**Requires at least:** 3.4.2
+**Tested up to:** 3.5
+**Stable tag:** 1.0
+**License:** GPLv2 or later
+**License URI:** http://www.gnu.org/licenses/gpl-2.0.html

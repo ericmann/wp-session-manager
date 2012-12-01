@@ -22,10 +22,6 @@ function wp_session_cache_expire() {
 	return $wp_session->cache_expiration();
 }
 
-function wp_session_cache_limiter() {
-	// Todo: Implement this
-}
-
 /**
  * Alias of wp_session_write_close()
  */
@@ -33,60 +29,44 @@ function wp_session_commit() {
 	wp_session_write_close();
 }
 
-function wp_session_decode() {
-	// Todo: Implement this
+/**
+ * Load a JSON-encoded string into the current session.
+ *
+ * @param string $data
+ */
+function wp_session_decode( $data ) {
+	/** @var $wp_session WP_Session */
+	global $wp_session;
+
+	return $wp_session->json_in( $data );
 }
 
-function wp_session_destroy() {
-	// Todo: Implement this
-}
-
+/**
+ * Encode the current session's data as a JSON string.
+ *
+ * @return string
+ */
 function wp_session_encode() {
-	// Todo: Implement this
+	/** @var $wp_session WP_Session */
+	global $wp_session;
+
+	return $wp_session->json_out();
 }
 
-function wp_session_get_cookie_params() {
-	// Todo: Implement this
-}
+/**
+ * Regenerate the session ID.
+ *
+ * @param bool $delete_old_session
+ *
+ * @return bool
+ */
+function wp_session_regenerate_id( $delete_old_session = false ) {
+	/** @var $wp_session WP_Session */
+	global $wp_session;
 
-function wp_session_id( $id = false ) {
-	// Todo: Implement this
-}
+	$wp_session->regenerate_id( $delete_old_session );
 
-function wp_session_is_registered() {
-	// Todo: Implement this
-}
-
-function wp_session_module_name() {
-	// Todo: Implement this
-}
-
-function wp_session_name() {
-	// Todo: Implement this
-}
-
-function wp_session_regenerate_id() {
-	// Todo: Implement this
-}
-
-function wp_session_register_shutdown() {
-	// Todo: Implement this
-}
-
-function wp_session_register() {
-	// Todo: Implement this
-}
-
-function wp_session_save_path() {
-	// Todo: Implement this
-}
-
-function wp_session_set_cookie_params() {
-	// Todo: Implement this
-}
-
-function wp_session_set_save_handler() {
-	// Todo: Implement this
+	return true;
 }
 
 /**
@@ -123,12 +103,14 @@ function wp_session_status() {
 	return PHP_SESSION_NONE;
 }
 
-function wp_session_unregister() {
-	// Todo: Implement this
-}
-
+/**
+ * Unset all session variables.
+ */
 function wp_session_unset() {
-	// Todo: Implement this
+	/** @var $wp_session WP_Session */
+	global $wp_session;
+
+	$wp_session->reset();
 }
 
 /**
