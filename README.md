@@ -22,16 +22,16 @@ Installation
 
 1. Upload the entire `/wp-session-manager` folder to the `/wp-content/plugins/` directory.
 1. Activate the plugin through the 'Plugins' menu in WordPress.
-1. Use `global $wp_session;` in your code.
+1. Use `WP_Session::get_instance();` in your code.
 
 Frequently Asked Questions
 --------------------------
 
 **How do I add session variables?**
 
-First, make a reference to the global session object.  Then, use it like an associative array, just like `$_SESSION`:
+First, make a reference to the WP_Session instance.  Then, use it like an associative array, just like `$_SESSION`:
 
-`global $wp_session;
+`$wp_session = WP_Session::get_instance();
 $wp_session['user_name'] = 'User Name';                            // A string
 $wp_session['user_contact'] = array( 'email' => 'user@name.com' ); // An array
 $wp_session['user_obj'] = new WP_User( 1 );                        // An object`
@@ -52,6 +52,10 @@ None
 Changelog
 ---------
 
+**1.0.1**
+
+- Changes implementation to avoid the use of a global variable (still registered for convenience)
+
 **1.0**
 
 - First version
@@ -71,6 +75,6 @@ Additional Information
 **Tags:** session
 **Requires at least:** 3.4.2
 **Tested up to:** 3.5
-**Stable tag:** 1.0
+**Stable tag:** 1.0.1
 **License:** GPLv2 or later
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html

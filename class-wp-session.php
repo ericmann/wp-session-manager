@@ -189,6 +189,10 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 		$this->container = array();
 	}
 
+	/*****************************************************************/
+	/*                   ArrayAccess Implementation                  */
+	/*****************************************************************/
+
 	/**
 	 * Whether a offset exists
 	 *
@@ -246,6 +250,10 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 		unset( $this->container[ $offset ] );
 	}
 
+	/*****************************************************************/
+	/*                     Iterator Implementation                   */
+	/*****************************************************************/
+
 	/**
 	 * Current position of the array.
 	 *
@@ -253,8 +261,7 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @return mixed
 	 */
-	public function current()
-	{
+	public function current() {
 		return current( $this->container );
 	}
 
@@ -263,10 +270,9 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @link http://php.net/manual/en/iterator.key.php
 	 *
-	 * @return scalar
+	 * @return mixed
 	 */
-	public function key()
-	{
+	public function key() {
 		return key( $this->container );
 	}
 
@@ -277,8 +283,7 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @return void
 	 */
-	public function next()
-	{
+	public function next() {
 		next( $this->container );
 	}
 
@@ -289,8 +294,7 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @return void
 	 */
-	public function rewind()
-	{
+	public function rewind() {
 		reset( $this->container );
 	}
 
@@ -299,12 +303,15 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @link http://php.net/manual/en/iterator.rewind.php
 	 *
-	 * @return void
+	 * @return bool
 	 */
-	public function valid()
-	{
+	public function valid() {
 		return $this->offsetExists( $this->key() );
 	}
+
+	/*****************************************************************/
+	/*                    Countable Implementation                   */
+	/*****************************************************************/
 
 	/**
 	 * Get the count of elements in the container array.
@@ -313,8 +320,7 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @return int
 	 */
-	public function count()
-	{
+	public function count() {
 		return count( $this->container );
 	}
 }
