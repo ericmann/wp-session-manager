@@ -16,7 +16,7 @@
  * @package WordPress
  * @since   3.6.0
  */
-class WP_Session implements ArrayAccess {
+class WP_Session implements ArrayAccess, Iterator, Countable {
 	/**
 	 * Internal data collection.
 	 *
@@ -244,5 +244,77 @@ class WP_Session implements ArrayAccess {
 	 */
 	public function offsetUnset( $offset ) {
 		unset( $this->container[ $offset ] );
+	}
+
+	/**
+	 * Current position of the array.
+	 *
+	 * @link http://php.net/manual/en/iterator.current.php
+	 *
+	 * @return mixed
+	 */
+	public function current()
+	{
+		return current( $this->container );
+	}
+
+	/**
+	 * Key of the current element.
+	 *
+	 * @link http://php.net/manual/en/iterator.key.php
+	 *
+	 * @return scalar
+	 */
+	public function key()
+	{
+		return key( $this->container );
+	}
+
+	/**
+	 * Move the internal point of the container array to the next item
+	 *
+	 * @link http://php.net/manual/en/iterator.next.php
+	 *
+	 * @return void
+	 */
+	public function next()
+	{
+		next( $this->container );
+	}
+
+	/**
+	 * Rewind the internal point of the container array.
+	 *
+	 * @link http://php.net/manual/en/iterator.rewind.php
+	 *
+	 * @return void
+	 */
+	public function rewind()
+	{
+		reset( $this->container );
+	}
+
+	/**
+	 * Is the current key valid?
+	 *
+	 * @link http://php.net/manual/en/iterator.rewind.php
+	 *
+	 * @return void
+	 */
+	public function valid()
+	{
+		return $this->offsetExists( $this->key() );
+	}
+
+	/**
+	 * Get the count of elements in the container array.
+	 *
+	 * @link http://php.net/manual/en/countable.count.php
+	 *
+	 * @return int
+	 */
+	public function count()
+	{
+		return count( $this->container );
 	}
 }
