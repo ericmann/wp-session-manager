@@ -112,11 +112,13 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	 * Write the data from the current session to the data storage system.
 	 */
 	public function write_data() {
-		$session_list = get_option( '_wp_session_list', array() );
-
 		$this->touch_session();
+		$option_key = '_wp_session_' . $this->session_id;
 
-		update_option( "_wp_session_{$this->session_id}", $this->container );
+		if ( false === get_option( $option_key ) )
+			add_option( $option_key, $this->container, '', 'no' );
+		else
+			update_option( $option_key, $this->container );
 	}
 
 	private function touch_session() {
