@@ -75,9 +75,9 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 			$this->session_id = $this->generate_id();
 		}
 
-		$this->read_data();
-
 		$this->expires = time() + intval( apply_filters( 'wp_session_expiration', 24 * 60 ) );
+
+		$this->read_data();
 
 		setcookie( WP_SESSION_COOKIE, $this->session_id, $this->expires, COOKIEPATH, COOKIE_DOMAIN );
 	}
@@ -116,7 +116,6 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 
 		$this->touch_session();
 
-		update_option( '_wp_session_list', $session_list );
 		update_option( "_wp_session_{$this->session_id}", $this->container );
 	}
 
