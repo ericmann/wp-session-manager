@@ -4,7 +4,7 @@ Donate link: http://jumping-duck.com/wordpress/plugins
 Tags: session
 Requires at least: 3.4.2
 Tested up to: 3.5
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,6 +53,9 @@ This value can be changed by using the `wp_session_expiration` filter:
 None
 
 == Changelog ==
+
+= 1.0.2 =
+* Switch to object persistence rather than transients
 
 = 1.0.1 =
 * Changes implementation to avoid the use of a global variable (still registered for convenience)

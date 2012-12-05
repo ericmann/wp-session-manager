@@ -2,7 +2,7 @@
 /**
  * WordPress session managment.
  *
- * Standardizes WordPress session data and uses either database transients or in-memory caching
+ * Standardizes WordPress session data using database-backed options for storage.
  * for storing user session information.
  *
  * @package WordPress
@@ -32,11 +32,11 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	private $session_id;
 
 	/**
-	 * Time in seconds until session data expired.
+	 * Unix timestamp when session expires.
 	 *
 	 * @var int
 	 */
-	private $cache_expire;
+	private $expires;
 
 	/**
 	 * Singleton instance.
@@ -77,9 +77,9 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 
 		$this->read_data();
 
-		$this->cache_expire = intval( apply_filters( 'wp_session_expiration', 24 * 60 ) );
+		$this->expires = time() + intval( apply_filters( 'wp_session_expiration', 24 * 60 ) );
 
-		setcookie( WP_SESSION_COOKIE, $this->session_id, time() + $this->cache_expire, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( WP_SESSION_COOKIE, $this->session_id, $this->expires, COOKIEPATH, COOKIE_DOMAIN );
 	}
 
 	/**
@@ -102,24 +102,37 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	 * @return array
 	 */
 	private function read_data() {
-		$data = get_transient( "_wp_session_{$this->session_id}" );
+		$this->touch_session();
+		$this->container = get_option( "_wp_session_{$this->session_id}", array() );
 
-		if ( ! $data ) {
-			$data = array();
-		}
-
-		$this->container = $data;
-
-		set_transient( "_wp_session_{$this->session_id}", $data, $this->cache_expire );
-
-		return $data;
+		return $this->container;
 	}
 
 	/**
 	 * Write the data from the current session to the data storage system.
 	 */
 	public function write_data() {
-		set_transient( "_wp_session_{$this->session_id}", $this->container, $this->cache_expire );
+		$session_list = get_option( '_wp_session_list', array() );
+
+		$this->touch_session();
+
+		update_option( '_wp_session_list', $session_list );
+		update_option( "_wp_session_{$this->session_id}", $this->container );
+	}
+
+	private function touch_session() {
+		$session_list = get_option( '_wp_session_list', array() );
+
+		$session_list[ $this->session_id ] = $this->expires;
+
+		foreach( $session_list as $id => $expires ) {
+			if ( time() > $this->expires ) {
+				delete_option( "_wp_session_{$id}" );
+				unset( $session_list[$id] );
+			}
+		}
+
+		update_option( '_wp_session_list', $session_list );
 	}
 
 	/**
@@ -156,12 +169,16 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	 */
 	public function regenerate_id( $delete_old = false ) {
 		if ( $delete_old ) {
-			delete_transient( "_wp_session_{$this->session_id}" );
+			delete_option( "_wp_session_{$this->session_id}" );
+
+			$session_list = get_option( '_wp_session_list', array() );
+			unset ($session_list[ $this->session_id ] );
+			update_option( '_wp_session_list', $session_list );
 		}
 
 		$this->session_id = $this->generate_id();
 
-		setcookie( WP_SESSION_COOKIE, $this->session_id, time() + $this->cache_expire, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( WP_SESSION_COOKIE, $this->session_id, time() + $this->expires, COOKIEPATH, COOKIE_DOMAIN );
 	}
 
 	/**
@@ -179,7 +196,7 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	 * @return int
 	 */
 	public function cache_expiration() {
-		return $this->cache_expire;
+		return $this->expires;
 	}
 
 	/**
