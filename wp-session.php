@@ -116,3 +116,48 @@ function wp_session_write_close() {
 	do_action( 'wp_session_commit' );
 }
 add_action( 'shutdown', 'wp_session_write_close' );
+
+/**
+ * Clean up expired sessions by removing data and their expiration entries from
+ * the WordPress options table.
+ *
+ * This method should never be called directly and should instead be triggered as part
+ * of a scheduled task or cron job.
+ */
+function wp_session_cleanup() {
+	global $wpdb;
+
+	if ( defined( 'WP_SETUP_CONFIG' ) ) {
+		return;
+	}
+
+	if ( ! defined( 'WP_INSTALLING' ) ) {
+		$expiration_keys = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%'" );
+
+		foreach( $expiration_keys as $expiration ) {
+			// If the session has expired
+			if ( time() > intval( $expiration->option_value ) ) {
+				// Get the session ID
+				$session_id = substr( $expiration->option_name, 20 );
+
+				delete_option( $expiration->option_name );
+				delete_option( "_wp_session_{$session_id}" );
+			}
+		}
+	}
+
+	// Allow other plugins to hook in to the garbage collection process.
+	do_action( 'wp_session_cleanup' );
+}
+add_action( 'wp_session_garbage_collection', 'wp_session_cleanup' );
+
+/**
+ * Register the garbage collector as a twice daily event.
+ */
+function wp_session_register_garbage_collection() {
+	if ( ! wp_next_scheduled( 'wp_session_garbage_collection' ) ) {
+		wp_schedule_event( time(), 'twicedaily', 'wp_session_garbage_collection' );
+	}
+}
+add_action( 'wp', 'wp_session_register_garbage_collection' );
+?>
