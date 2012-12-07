@@ -16,14 +16,7 @@
  * @package WordPress
  * @since   3.6.0
  */
-class WP_Session implements ArrayAccess, Iterator, Countable {
-	/**
-	 * Internal data collection.
-	 *
-	 * @var array
-	 */
-	private $container;
-
+final class WP_Session extends Recursive_ArrayAccess implements Iterator, Countable {
 	/**
 	 * ID of the current session.
 	 *
@@ -37,6 +30,13 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	 * @var int
 	 */
 	private $expires;
+
+	/**
+	 * Unix timestamp indicating when the expiration time needs to be reset.
+	 *
+	 * @var int
+	 */
+	private $exp_variant;
 
 	/**
 	 * Singleton instance.
@@ -68,18 +68,51 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	 * @param $session_id
 	 * @uses apply_filters Calls `wp_session_expiration` to determine how long until sessions expire.
 	 */
-	private function __construct() {
+	protected function __construct() {
 		if ( isset( $_COOKIE[WP_SESSION_COOKIE] ) ) {
-			$this->session_id = stripslashes( $_COOKIE[WP_SESSION_COOKIE] );
+			$cookie = stripslashes( $_COOKIE[WP_SESSION_COOKIE] );
+			$cookie_crumbs = explode( '||', $cookie );
+
+			$this->session_id = $cookie_crumbs[0];
+			$this->expires = $cookie_crumbs[1];
+			$this->exp_variant = $cookie_crumbs[2];
+
+			// Update the session expiration if we're past the variant time
+			if ( time() > $this->exp_variant ) {
+				$this->set_expiration();
+				update_option( "_wp_session_expires_{$this->session_id}", $this->expires );
+			}
 		} else {
 			$this->session_id = $this->generate_id();
+			$this->set_expiration();
 		}
-
-		$this->expires = time() + intval( apply_filters( 'wp_session_expiration', 24 * 60 ) );
 
 		$this->read_data();
 
-		setcookie( WP_SESSION_COOKIE, $this->session_id, $this->expires, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( WP_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN );
+	}
+
+	/**
+	 * Set both the expiration time and the expiration variant.
+	 *
+	 * If the current time is below the variant, we don't update the session's expiration time. If it's
+	 * greater than the variant, then we update the expiration time in the database.  This prevents
+	 * writing to the database on every page load for active sessions and only updates the expiration
+	 * time if we're nearing when the session actually expires.
+	 *
+	 * By default, the expiration time is set to 30 minutes.
+	 * By default, the expiration variant is set to 24 minutes.
+	 *
+	 * As a result, the session expiration time - at a maximum - will only be written to the database once
+	 * every 24 minutes.  After 30 minutes, the session will have been expired. No cookie will be sent by
+	 * the browser, and the old session will be queued for deletion by the garbage collector.
+	 *
+	 * @uses apply_filters Calls `wp_session_expiration_variant` to get the max update window for session data.
+	 * @uses apply_filters Calls `wp_session_expiration` to get the standard expiration time for sessions.
+	 */
+	private function set_expiration() {
+		$this->exp_variant = time() + intval( apply_filters( 'wp_session_expiration_variant', 24 * 60 ) );
+		$this->expires = time() + intval( apply_filters( 'wp_session_expiration', 30 * 60 ) );
 	}
 
 	/**
@@ -102,7 +135,6 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	 * @return array
 	 */
 	private function read_data() {
-		$this->touch_session();
 		$this->container = get_option( "_wp_session_{$this->session_id}", array() );
 
 		return $this->container;
@@ -112,26 +144,16 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	 * Write the data from the current session to the data storage system.
 	 */
 	public function write_data() {
-		$session_list = get_option( '_wp_session_list', array() );
+		$option_key = "_wp_session_{$this->session_id}";
 
-		$this->touch_session();
-
-		update_option( "_wp_session_{$this->session_id}", $this->container );
-	}
-
-	private function touch_session() {
-		$session_list = get_option( '_wp_session_list', array() );
-
-		$session_list[ $this->session_id ] = $this->expires;
-
-		foreach( $session_list as $id => $expires ) {
-			if ( time() > $this->expires ) {
-				delete_option( "_wp_session_{$id}" );
-				unset( $session_list[$id] );
+		// Only write the collection to the DB if it's changed.
+		if ( $this->dirty ) {
+			if ( false === get_option( $option_key ) ) {
+				add_option( "_wp_session_{$this->session_id}", $this->container, '', 'no' );
+			} else {
+				update_option( "_wp_session_{$this->session_id}", $this->container );
 			}
 		}
-
-		update_option( '_wp_session_list', $session_list );
 	}
 
 	/**
@@ -169,15 +191,11 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	public function regenerate_id( $delete_old = false ) {
 		if ( $delete_old ) {
 			delete_option( "_wp_session_{$this->session_id}" );
-
-			$session_list = get_option( '_wp_session_list', array() );
-			unset ($session_list[ $this->session_id ] );
-			update_option( '_wp_session_list', $session_list );
 		}
 
 		$this->session_id = $this->generate_id();
 
-		setcookie( WP_SESSION_COOKIE, $this->session_id, time() + $this->expires, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( WP_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN );
 	}
 
 	/**
@@ -203,67 +221,6 @@ class WP_Session implements ArrayAccess, Iterator, Countable {
 	 */
 	public function reset() {
 		$this->container = array();
-	}
-
-	/*****************************************************************/
-	/*                   ArrayAccess Implementation                  */
-	/*****************************************************************/
-
-	/**
-	 * Whether a offset exists
-	 *
-	 * @link http://php.net/manual/en/arrayaccess.offsetexists.php
-	 *
-	 * @param mixed $offset An offset to check for.
-	 *
-	 * @return boolean true on success or false on failure.
-	 */
-	public function offsetExists( $offset ) {
-		return isset( $this->container[ $offset ]) ;
-	}
-
-	/**
-	 * Offset to retrieve
-	 *
-	 * @link http://php.net/manual/en/arrayaccess.offsetget.php
-	 *
-	 * @param mixed $offset The offset to retrieve.
-	 *
-	 * @return mixed Can return all value types.
-	 */
-	public function offsetGet( $offset ) {
-		return isset( $this->container[ $offset ] ) ? $this->container[ $offset ] : null;
-	}
-
-	/**
-	 * Offset to set
-	 *
-	 * @link http://php.net/manual/en/arrayaccess.offsetset.php
-	 *
-	 * @param mixed $offset The offset to assign the value to.
-	 * @param mixed $value  The value to set.
-	 *
-	 * @return void
-	 */
-	public function offsetSet( $offset, $value ) {
-		if ( is_null( $offset ) ) {
-			$this->container[] = $value;
-		} else {
-			$this->container[ $offset ] = $value;
-		}
-	}
-
-	/**
-	 * Offset to unset
-	 *
-	 * @link http://php.net/manual/en/arrayaccess.offsetunset.php
-	 *
-	 * @param mixed $offset The offset to unset.
-	 *
-	 * @return void
-	 */
-	public function offsetUnset( $offset ) {
-		unset( $this->container[ $offset ] );
 	}
 
 	/*****************************************************************/
