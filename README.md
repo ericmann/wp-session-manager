@@ -52,6 +52,12 @@ None
 Changelog
 ---------
 
+**1.1**
+
+- Implement Recursive_ArrayAccess to provide multidimensional array support
+- Better expiration for session data
+- Implement garbage collection to keep the database clean
+
 **1.0.2**
 
 - Switch to object persistence rather than transients
@@ -79,6 +85,6 @@ Additional Information
 **Tags:** session
 **Requires at least:** 3.4.2
 **Tested up to:** 3.5
-**Stable tag:** 1.0.2
+**Stable tag:** 1.1
 **License:** GPLv2 or later
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html
