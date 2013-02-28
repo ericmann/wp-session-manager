@@ -89,7 +89,8 @@ final class WP_Session extends Recursive_ArrayAccess implements Iterator, Counta
 
 		$this->read_data();
 
-		setcookie( WP_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN );
+		$this->set_cookie();
+
 	}
 
 	/**
@@ -113,6 +114,14 @@ final class WP_Session extends Recursive_ArrayAccess implements Iterator, Counta
 	private function set_expiration() {
 		$this->exp_variant = time() + intval( apply_filters( 'wp_session_expiration_variant', 24 * 60 ) );
 		$this->expires = time() + intval( apply_filters( 'wp_session_expiration', 30 * 60 ) );
+	}
+
+	/**
+	 * Set the session cookie
+	 */
+	private function set_cookie() {
+
+		setcookie( WP_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN );
 	}
 
 	/**
@@ -195,7 +204,7 @@ final class WP_Session extends Recursive_ArrayAccess implements Iterator, Counta
 
 		$this->session_id = $this->generate_id();
 
-		setcookie( WP_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN );
+		$this->set_cookie();
 	}
 
 	/**
