@@ -22,21 +22,21 @@ final class WP_Session extends Recursive_ArrayAccess implements Iterator, Counta
 	 *
 	 * @var string
 	 */
-	private $session_id;
+	protected $session_id;
 
 	/**
 	 * Unix timestamp when session expires.
 	 *
 	 * @var int
 	 */
-	private $expires;
+	protected $expires;
 
 	/**
 	 * Unix timestamp indicating when the expiration time needs to be reset.
 	 *
 	 * @var int
 	 */
-	private $exp_variant;
+	protected $exp_variant;
 
 	/**
 	 * Singleton instance.
@@ -111,16 +111,15 @@ final class WP_Session extends Recursive_ArrayAccess implements Iterator, Counta
 	 * @uses apply_filters Calls `wp_session_expiration_variant` to get the max update window for session data.
 	 * @uses apply_filters Calls `wp_session_expiration` to get the standard expiration time for sessions.
 	 */
-	private function set_expiration() {
-		$this->exp_variant = time() + intval( apply_filters( 'wp_session_expiration_variant', 24 * 60 ) );
-		$this->expires = time() + intval( apply_filters( 'wp_session_expiration', 30 * 60 ) );
+	protected function set_expiration() {
+		$this->exp_variant = time() + (int) apply_filters( 'wp_session_expiration_variant', 24 * 60 );
+		$this->expires = time() + (int) apply_filters( 'wp_session_expiration', 30 * 60 );
 	}
 
 	/**
 	 * Set the session cookie
 	 */
-	private function set_cookie() {
-
+	protected function set_cookie() {
 		setcookie( WP_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN );
 	}
 
@@ -129,7 +128,7 @@ final class WP_Session extends Recursive_ArrayAccess implements Iterator, Counta
 	 *
 	 * @return string
 	 */
-	private function generate_id() {
+	protected function generate_id() {
 		require_once( ABSPATH . 'wp-includes/class-phpass.php');
 		$hasher = new PasswordHash( 8, false );
 
@@ -143,7 +142,7 @@ final class WP_Session extends Recursive_ArrayAccess implements Iterator, Counta
 	 *
 	 * @return array
 	 */
-	private function read_data() {
+	protected function read_data() {
 		$this->container = get_option( "_wp_session_{$this->session_id}", array() );
 
 		return $this->container;
@@ -159,6 +158,7 @@ final class WP_Session extends Recursive_ArrayAccess implements Iterator, Counta
 		if ( $this->dirty ) {
 			if ( false === get_option( $option_key ) ) {
 				add_option( "_wp_session_{$this->session_id}", $this->container, '', 'no' );
+				add_option( "_wp_session_expires_{$this->session_id}", $this->expires, '', 'no' );
 			} else {
 				update_option( "_wp_session_{$this->session_id}", $this->container );
 			}
