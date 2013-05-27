@@ -7,14 +7,14 @@
  *
  * @package WordPress
  * @subpackage Session
- * @since 3.6.0
+ * @since 3.7.0
  */
 
 /**
  * Recursive array class to allow multidimensional array access.
  *
  * @package WordPress
- * @since 3.6.0
+ * @since 3.7.0
  */
 class Recursive_ArrayAccess implements ArrayAccess {
 	/**

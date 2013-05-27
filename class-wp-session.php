@@ -7,14 +7,14 @@
  *
  * @package WordPress
  * @subpackage Session
- * @since   3.6.0
+ * @since   3.7.0
  */
 
 /**
  * WordPress Session class for managing user session data.
  *
  * @package WordPress
- * @since   3.6.0
+ * @since   3.7.0
  */
 final class WP_Session extends Recursive_ArrayAccess implements Iterator, Countable {
 	/**

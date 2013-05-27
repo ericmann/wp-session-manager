@@ -7,7 +7,7 @@
  *
  * @package WordPress
  * @subpackage Session
- * @since   3.6.0
+ * @since   3.7.0
  */
 
 /**
