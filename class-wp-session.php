@@ -143,7 +143,8 @@ final class WP_Session extends Recursive_ArrayAccess implements Iterator, Counta
 	 * @return array
 	 */
 	protected function read_data() {
-		$this->container = get_option( "_wp_session_{$this->session_id}", array() );
+		$session = get_option( "_wp_session_{$this->session_id}", array() );
+        parent::__construct( $session );
 
 		return $this->container;
 	}
