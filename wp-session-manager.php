@@ -22,4 +22,3 @@ if ( ! class_exists( 'WP_Session' ) ) {
 	require_once( 'class-wp-session.php' );
 	require_once( 'wp-session.php' );
 }
-?>
