@@ -3,8 +3,8 @@ Contributors: ericmann
 Donate link: http://jumping-duck.com/wordpress/plugins
 Tags: session
 Requires at least: 3.4.2
-Tested up to: 3.5
-Stable tag: 1.1.1
+Tested up to: 3.8
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,6 +53,10 @@ This value can be changed by using the `wp_session_expiration` filter:
 None
 
 == Changelog ==
+
+= 1.1.2 =
+* Fix a race condition where session expiration options could accidentally be set to autoload
+* Make the garbage collection routine run hourly to alleviate long-running tasks on larger sites
 
 = 1.1.1 =
 * Fix a bug where session expiration was not properly set upon instantiation
