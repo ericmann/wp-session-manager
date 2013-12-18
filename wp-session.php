@@ -163,7 +163,7 @@ add_action( 'wp_session_garbage_collection', 'wp_session_cleanup' );
  */
 function wp_session_register_garbage_collection() {
 	if ( ! wp_next_scheduled( 'wp_session_garbage_collection' ) ) {
-		wp_schedule_event( time(), 'twicedaily', 'wp_session_garbage_collection' );
+		wp_schedule_event( time(), 'hourly', 'wp_session_garbage_collection' );
 	}
 }
 add_action( 'wp', 'wp_session_register_garbage_collection' );
