@@ -143,7 +143,8 @@ final class WP_Session extends Recursive_ArrayAccess implements Iterator, Counta
 	 * @return array
 	 */
 	protected function read_data() {
-		$this->container = get_option( "_wp_session_{$this->session_id}", array() );
+		$session = get_option( "_wp_session_{$this->session_id}", array() );
+        parent::__construct( $session );
 
 		return $this->container;
 	}
@@ -155,12 +156,12 @@ final class WP_Session extends Recursive_ArrayAccess implements Iterator, Counta
 		$option_key = "_wp_session_{$this->session_id}";
 
 		// Only write the collection to the DB if it's changed.
-		if ( $this->dirty ) {
+		if ( $this->is_dirty() ) {
 			if ( false === get_option( $option_key ) ) {
-				add_option( "_wp_session_{$this->session_id}", $this->container, '', 'no' );
+				add_option( "_wp_session_{$this->session_id}", $this->toArray(), '', 'no' );
 				add_option( "_wp_session_expires_{$this->session_id}", $this->expires, '', 'no' );
 			} else {
-				update_option( "_wp_session_{$this->session_id}", $this->container );
+				update_option( "_wp_session_{$this->session_id}", $this->toArray() );
 			}
 		}
 	}

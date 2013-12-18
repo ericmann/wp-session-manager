@@ -38,8 +38,9 @@ class Recursive_ArrayAccess implements ArrayAccess {
 	 */
 	protected function __construct( $data = array() ) {
 		foreach ( $data as $key => $value ) {
-			$this[ $key ] = $value;
+            $this->offsetSet( $key, $value );
 		}
+        $this->dirty = false;
 	}
 
 	/**
@@ -67,6 +68,24 @@ class Recursive_ArrayAccess implements ArrayAccess {
 		}
 		return $data;
 	}
+
+    /**
+     * Recursively check if any collection has changed
+     *
+     * @return boolean
+     */
+    public function is_dirty() {
+        if ( $this->dirty )
+            return true;
+
+		$data = $this->container;
+		foreach ( $data as $value ) {
+			if ( $value instanceof self && $value->is_dirty() ) {
+				return true;
+			}
+		}
+		return false;
+    }
 
 	/*****************************************************************/
 	/*                   ArrayAccess Implementation                  */
