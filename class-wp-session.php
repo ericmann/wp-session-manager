@@ -80,7 +80,8 @@ final class WP_Session extends Recursive_ArrayAccess implements Iterator, Counta
 			// Update the session expiration if we're past the variant time
 			if ( time() > $this->exp_variant ) {
 				$this->set_expiration();
-				update_option( "_wp_session_expires_{$this->session_id}", $this->expires );
+				delete_option( "_wp_session_expires_{$this->session_id}" );
+				add_option( "_wp_session_expires_{$this->session_id}", $this->expires, '', 'no' );
 			}
 		} else {
 			$this->session_id = $this->generate_id();
@@ -160,7 +161,8 @@ final class WP_Session extends Recursive_ArrayAccess implements Iterator, Counta
 				add_option( "_wp_session_{$this->session_id}", $this->container, '', 'no' );
 				add_option( "_wp_session_expires_{$this->session_id}", $this->expires, '', 'no' );
 			} else {
-				update_option( "_wp_session_{$this->session_id}", $this->container );
+				delete_option( "_wp_session_{$this->session_id}" );
+				add_option( "_wp_session_{$this->session_id}", $this->container, '', 'no' );
 			}
 		}
 	}
