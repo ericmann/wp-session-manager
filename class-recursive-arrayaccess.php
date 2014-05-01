@@ -135,4 +135,17 @@ class Recursive_ArrayAccess implements ArrayAccess {
 
 		$this->dirty = true;
 	}
+
+	/**
+	 * return the status of dirty for this container and all subcontainers.
+	 *
+	 * @return bool
+	 */
+	public function isDirty() {
+        $returnValue = $this->dirty;
+        foreach($this->container as $key=>$value) {
+                $returnValue = $returnValue || $value->isDirty();
+        }
+        return $returnValue;
+    }
 }
