@@ -105,11 +105,10 @@ First version
 Additional Information
 ----------------------
 
-**Contributors:** ericmann
-**Donate link:** http://jumping-duck.com/wordpress/plugins
+**Contributors:** ericmann, calevans, crxgames, kyle-ilantzis
 **Tags:** session
 **Requires at least:** 3.4.2
-**Tested up to:** 3.8
-**Stable tag:** 1.1.2
+**Tested up to:** 3.9.1
+**Stable tag:** 1.1.3
 **License:** GPLv2 or later
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html
