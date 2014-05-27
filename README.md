@@ -1,7 +1,15 @@
 WP Session Manager
 ==================
-
 Prototype session management for WordPress.
+
+
+Contributors
+------------
+Eric Mann - ([ericmann](https://github.com/ericmann)) Original Author 
+Cal Evans ([calevans](https://github.com/calevans])
+Cody Mays ([crxgames](https://github.com/crxgames)
+Kyle Ilantzis ([kyle-ilantzis](https://github.com/kyle-ilantzis)
+
 
 Description
 -----------
