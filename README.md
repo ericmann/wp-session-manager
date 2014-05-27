@@ -63,6 +63,11 @@ None
 Changelog
 ---------
 
+**1.1.3**
+
+- Implemented a patch from Cody Mays to fix a problem with the sesison id containing an unescaped single quote. The patch solves the sympton but I haven't yet chased down what is putting a sinlge quote into the session id to begin with.
+- Implemented a patch from Kyle Ilantzis that moved the  "Implements" from WP_Session and into Recursive_ArrayAccess. 
+
 **1.1.2**
 
 - Fix a race condition where session expiration options could accidentally be set to autoload
