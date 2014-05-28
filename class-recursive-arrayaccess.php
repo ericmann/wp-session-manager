@@ -109,6 +109,7 @@ class Recursive_ArrayAccess implements ArrayAccess, Iterator, Countable {
 	 * @return void
 	 */
 	public function offsetSet( $offset, $data ) {
+
 		if ( is_array( $data ) ) {
 			$data = new self( $data );
 		}

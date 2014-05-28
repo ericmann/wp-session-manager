@@ -232,6 +232,7 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 */
 	public function reset() {
 		$this->container = array();
+		$this->dirty=false;
 	}
 
 }
