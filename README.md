@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/calevans/wp-session-manager.svg?branch=master)](https://travis-ci.org/calevans/wp-session-manager)
 WP Session Manager
 ==================
 Prototype session management for WordPress.
