@@ -109,7 +109,6 @@ class Recursive_ArrayAccess implements ArrayAccess, Iterator, Countable {
 	 * @return void
 	 */
 	public function offsetSet( $offset, $data ) {
-
 		if ( is_array( $data ) ) {
 			$data = new self( $data );
 		}
@@ -142,7 +141,8 @@ class Recursive_ArrayAccess implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @return bool
 	 */
-	public function isDirty() {
+	public function isDirty() 
+	{
         $returnValue = $this->dirty;
 
         foreach($this->container as $key=>$value) {
@@ -152,6 +152,17 @@ class Recursive_ArrayAccess implements ArrayAccess, Iterator, Countable {
         }
 
         return $returnValue;
+    }
+
+    protected function clean() 
+    {
+    	$this->dirty=false;
+        foreach($this->container as $key=>$value) {
+        	if ($value instanceof Recursive_ArrayAccess) {
+                $value->clean();        		
+        	}
+        }
+        return;
     }
 
 	/*****************************************************************/

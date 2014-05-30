@@ -33,6 +33,27 @@ class SessionTest extends WP_UnitTestCase
 
 	}
 
+	public function testNestedAdds()
+	{
+		$o = WP_Session::get_instance();
+		$o->reset();
+		$o['test'] = array();
+		$o['test']['one'] = 'One';
+		$o['test']['two'] = 'Two';
+		$this->assertTrue($o->isDirty());
+		$o->write_data();
+		var_dump($o->isDirty());
+		$this->assertFalse($o->isDirty());
+		
+		unset($o);
+		
+		$o = WP_Session::get_instance();		
+		$this->assertArrayHasKey('test',$o);
+		$this->assertArrayHasKey('one',$o['test']);
+		$this->assertArrayHasKey('two',$o['test']);
+		return;
+	}
+
 	public function testGenerateId()
 	{
 		// kludgy
