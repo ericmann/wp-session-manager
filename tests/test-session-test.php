@@ -16,7 +16,7 @@ class SessionTest extends WP_UnitTestCase
 		$o = WP_Session::get_instance();
 		$o->reset();
 		$this->assertFalse($o->isDirty());
-		$o['test'] = true;
+		$o['test'] = 'test';
 		$this->assertTrue($o->isDirty());
 		return;
 	}
@@ -40,11 +40,7 @@ class SessionTest extends WP_UnitTestCase
 		$o['test'] = array();
 		$o['test']['one'] = 'One';
 		$o['test']['two'] = 'Two';
-		$this->assertTrue($o->isDirty());
-		$o->write_data();
-		var_dump($o->isDirty());
-		$this->assertFalse($o->isDirty());
-		
+
 		unset($o);
 		
 		$o = WP_Session::get_instance();		
@@ -66,5 +62,14 @@ class SessionTest extends WP_UnitTestCase
 		return;
 	}
 
+	public function testClean()
+	{
+		$o = WP_Session::get_instance();		
+		$o['test'] = 'test';
+		$this->assertTrue($o->isDirty());
+		$o->write_data();
+		$this->assertFalse($o->isDirty());
+		return;
+	}
 }
 

@@ -164,7 +164,7 @@ final class WP_Session extends Recursive_ArrayAccess {
 				delete_option( "_wp_session_{$this->session_id}" );
 				add_option( "_wp_session_{$this->session_id}", $this->container, '', 'no' );
 			}
-			
+
 			$this->clean();
 		}
 	}
@@ -234,7 +234,7 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 */
 	public function reset() {
 		$this->container = array();
-		$this->dirty=false;
+		$this->clean();
 	}
 
 }
