@@ -16,7 +16,7 @@
  * @package WordPress
  * @since 3.7.0
  */
-class Recursive_ArrayAccess implements ArrayAccess {
+class Recursive_ArrayAccess implements ArrayAccess, Iterator, Countable {
 	/**
 	 * Internal data collection.
 	 *
@@ -134,5 +134,108 @@ class Recursive_ArrayAccess implements ArrayAccess {
 		unset( $this->container[ $offset ] );
 
 		$this->dirty = true;
+	}
+
+	/**
+	 * Return the status of dirty for this container and all subcontainers.
+	 *
+	 * @return bool
+	 */
+	public function isDirty() 
+	{
+        $returnValue = $this->dirty;
+
+        foreach($this->container as $key=>$value) {
+        	if ($value instanceof Recursive_ArrayAccess) {
+                $returnValue = $returnValue || $value->isDirty();        		
+        	}
+        }
+
+        return $returnValue;
+    }
+
+    protected function clean() 
+    {
+    	$this->dirty=false;
+        foreach($this->container as $key=>$value) {
+        	if ($value instanceof Recursive_ArrayAccess) {
+                $value->clean();        		
+        	}
+        }
+        return;
+    }
+
+	/*****************************************************************/
+	/*                     Iterator Implementation                   */
+	/*****************************************************************/
+
+	/**
+	 * Current position of the array.
+	 *
+	 * @link http://php.net/manual/en/iterator.current.php
+	 *
+	 * @return mixed
+	 */
+	public function current() {
+		return current( $this->container );
+	}
+
+	/**
+	 * Key of the current element.
+	 *
+	 * @link http://php.net/manual/en/iterator.key.php
+	 *
+	 * @return mixed
+	 */
+	public function key() {
+		return key( $this->container );
+	}
+
+	/**
+	 * Move the internal point of the container array to the next item
+	 *
+	 * @link http://php.net/manual/en/iterator.next.php
+	 *
+	 * @return void
+	 */
+	public function next() {
+		next( $this->container );
+	}
+
+	/**
+	 * Rewind the internal point of the container array.
+	 *
+	 * @link http://php.net/manual/en/iterator.rewind.php
+	 *
+	 * @return void
+	 */
+	public function rewind() {
+		reset( $this->container );
+	}
+
+	/**
+	 * Is the current key valid?
+	 *
+	 * @link http://php.net/manual/en/iterator.rewind.php
+	 *
+	 * @return bool
+	 */
+	public function valid() {
+		return $this->offsetExists( $this->key() );
+	}
+
+	/*****************************************************************/
+	/*                    Countable Implementation                   */
+	/*****************************************************************/
+
+	/**
+	 * Get the count of elements in the container array.
+	 *
+	 * @link http://php.net/manual/en/countable.count.php
+	 *
+	 * @return int
+	 */
+	public function count() {
+		return count( $this->container );
 	}
 }

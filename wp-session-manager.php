@@ -3,9 +3,11 @@
  * Plugin Name: WP Session Manager
  * Plugin URI:  http://jumping-duck.com/wordpress/plugins
  * Description: Prototype session management for WordPress.
- * Version:     1.1.2
+ * Version:     1.1.3
  * Author:      Eric Mann
  * Author URI:  http://eamann.com
+ * Author:      Cal Evans
+ * Author URI:  http://blog.calevans.com
  * License:     GPLv2+
  */
 

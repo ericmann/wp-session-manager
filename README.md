@@ -1,7 +1,19 @@
+[![Build Status](https://travis-ci.org/calevans/wp-session-manager.svg?branch=master)](https://travis-ci.org/calevans/wp-session-manager)
 WP Session Manager
 ==================
-
 Prototype session management for WordPress.
+
+
+Contributors
+------------
+Eric Mann - ([ericmann](https://github.com/ericmann)) Original Author 
+
+Cal Evans ([calevans](https://github.com/calevans]))
+
+Cody Mays ([crxgames](https://github.com/crxgames))
+
+Kyle Ilantzis ([kyle-ilantzis](https://github.com/kyle-ilantzis))
+
 
 Description
 -----------
@@ -31,10 +43,13 @@ Frequently Asked Questions
 
 First, make a reference to the WP_Session instance.  Then, use it like an associative array, just like `$_SESSION`:
 
-`$wp_session = WP_Session::get_instance();
-$wp_session['user_name'] = 'User Name';                            // A string
-$wp_session['user_contact'] = array( 'email' => 'user@name.com' ); // An array
-$wp_session['user_obj'] = new WP_User( 1 );                        // An object`
+`$wp_session = WP_Session::get_instance();`
+
+`$wp_session['user_name'] = 'User Name';                            // A string`
+
+`$wp_session['user_contact'] = array( 'email' => 'user@name.com' ); // An array`
+
+`$wp_session['user_obj'] = new WP_User( 1 );                        // An object`
 
 **How long do session variables live?**
 
@@ -51,6 +66,11 @@ None
 
 Changelog
 ---------
+
+**1.1.3**
+
+- Implemented a patch from Cody Mays to fix a problem with the sesison id containing an unescaped single quote. The patch solves the sympton but I haven't yet chased down what is putting a sinlge quote into the session id to begin with.
+- Implemented a patch from Kyle Ilantzis that moved the  "Implements" from WP_Session and into Recursive_ArrayAccess. 
 
 **1.1.2**
 
@@ -89,11 +109,6 @@ First version
 Additional Information
 ----------------------
 
-**Contributors:** ericmann
-**Donate link:** http://jumping-duck.com/wordpress/plugins
-**Tags:** session
-**Requires at least:** 3.4.2
-**Tested up to:** 3.8
-**Stable tag:** 1.1.2
 **License:** GPLv2 or later
+
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html
