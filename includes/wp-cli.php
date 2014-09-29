@@ -38,19 +38,39 @@ class WP_Session_Command extends \WP_CLI_Command {
 	 * [--batch=<batch>]
 	 * : Set the batch size for deleting old sessions
 	 *
+	 * [--limit=<limit>]
+	 * : Delete just this number of old sessions
+	 *
 	 * ## EXAMPLES
 	 *
 	 *      wp session delete
 	 *      wp session delete [--batch=<batch>]
+	 *      wp session delete [--limit=<limit>]
 	 *      wp session delete [--all]
 	 *
-	 * @synopsis [--all] [--batch=<batch>]
+	 * @synopsis [--all] [--batch=<batch>] [--limit=<limit>]
 	 *
 	 * @param array $args
 	 * @param array $assoc_args
 	 */
 	public function delete( $args, $assoc_args ) {
+		if ( isset( $assoc_args['limit'] ) ) {
+			$limit = absint( $assoc_args['limit'] );
+
+			$count = WP_Session_Utils::delete_old_sessions( $limit );
+
+			if ( $count > 0 ) {
+				\WP_CLI::line( sprintf( 'Deleted %d sessions.', $count ) );
+			}
+
+			// Clear memory
+			self::free_up_memory();
+			return;
+		}
+
+		// Determine if we're deleting all sessions or just a subset.
 		$all = isset( $assoc_args['all'] );
+
 		/**
 		 * Determine the size of each batch for deletion.
 		 *

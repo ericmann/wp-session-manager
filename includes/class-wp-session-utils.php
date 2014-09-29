@@ -73,11 +73,11 @@ class WP_Session_Utils {
 	 *
 	 * @return int Sessions deleted.
 	 */
-	public static function delete_old_sessions( $batch = 1000 ) {
+	public static function delete_old_sessions( $limit = 1000 ) {
 		global $wpdb;
 
-		$batch = absint( $batch );
-		$keys = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%' ORDER BY option_value ASC LIMIT 0, {$batch}" );
+		$limit = absint( $limit );
+		$keys = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%' ORDER BY option_value ASC LIMIT 0, {$limit}" );
 
 		$now = time();
 		$expired = array();
@@ -114,7 +114,11 @@ class WP_Session_Utils {
 	 * @return int Sessions deleted
 	 */
 	public static function delete_all_sessions() {
+		global $wpdb;
 
+		$count = $wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_wp_session_%'" );
+
+		return (int) ( $count / 2 );
 	}
 
 	/**
