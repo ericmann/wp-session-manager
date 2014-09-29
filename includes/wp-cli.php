@@ -15,11 +15,15 @@ class WP_Session_Command extends WP_CLI_Command {
 	 *
 	 *      wp session count
 	 *
+	 * @global wpdb $wpdb
+	 *
 	 * @param array $args
 	 * @param array $assoc_args
 	 */
 	public function count( $args, $assoc_args ) {
+		$sessions = WP_Session_Utils::count_sessions();
 
+		WP_CLI::line( sprintf( '%d sessions currently exist.', absint( $sessions ) ) );
 	}
 
 	/**
