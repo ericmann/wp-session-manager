@@ -56,6 +56,7 @@ None
 
 = DEV =
 * Update: Enhanced plugin organization
+* Update: Added WP_CLI support for session management
 
 = 1.1.2 =
 * Fix a race condition where session expiration options could accidentally be set to autoload
