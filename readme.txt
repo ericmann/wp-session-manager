@@ -54,6 +54,9 @@ None
 
 == Changelog ==
 
+= DEV =
+* Update: Enhanced plugin organization
+
 = 1.1.2 =
 * Fix a race condition where session expiration options could accidentally be set to autoload
 * Make the garbage collection routine run hourly to alleviate long-running tasks on larger sites

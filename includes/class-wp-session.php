@@ -130,7 +130,7 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 * @return string
 	 */
 	protected function generate_id() {
-		require_once( ABSPATH . 'wp-includes/class-phpass.php');
+		require_once( ABSPATH . 'wp-includes/class-phpass.php' );
 		$hasher = new PasswordHash( 8, false );
 
 		return md5( $hasher->get_random_bytes( 32 ) );
