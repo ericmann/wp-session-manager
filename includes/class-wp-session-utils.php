@@ -23,10 +23,56 @@ class WP_Session_Utils {
 		 *
 		 * @param string $query Database count query
 		 */
-		$query = apply_filters( $query, 'wp_session_count_query' );
+		$query = apply_filters( 'wp_session_count_query', $query );
 
 		$sessions = $wpdb->get_var( $query );
 
 		return absint( $sessions );
+	}
+
+	/**
+	 * Create a new, random session in the database.
+	 *
+	 * @param null|string $date
+	 */
+	public static function create_dummy_session( $date = null ) {
+		// Generate our date
+		if ( null !== $date ) {
+			$time = strtotime( $date );
+
+			if ( false === $time ) {
+				$date = null;
+			} else {
+				$expires = date( 'U', strtotime( $date ) );
+			}
+		}
+
+		// If null was passed, or if the string parsing failed, fall back on a default
+		if ( null === $date ) {
+			/**
+			 * Filter the expiration of the session in the database
+			 *
+			 * @param int
+			 */
+			$expires = time() + (int) apply_filters( 'wp_session_expiration', 30 * 60 );
+		}
+
+		$session_id = self::generate_id();
+
+		// Store the session
+		add_option( "_wp_session_{$session_id}", array(), '', 'no' );
+		add_option( "_wp_session_expires_{$session_id}", $expires, '', 'no' );
+	}
+
+	/**
+	 * Generate a new, random session ID.
+	 *
+	 * @return string
+	 */
+	public static function generate_id() {
+		require_once( ABSPATH . 'wp-includes/class-phpass.php' );
+		$hash = new PasswordHash( 8, false );
+
+		return md5( $hash->get_random_bytes( 32 ) );
 	}
 } 

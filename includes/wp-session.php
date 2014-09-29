@@ -78,7 +78,9 @@ function wp_session_start() {
 
 	return $wp_session->session_started();
 }
-add_action( 'plugins_loaded', 'wp_session_start' );
+if ( ! defined( 'WP_CLI' ) || false === WP_CLI ) {
+	add_action( 'plugins_loaded', 'wp_session_start' );
+}
 
 /**
  * Return the current session status.
@@ -113,7 +115,9 @@ function wp_session_write_close() {
 	$wp_session->write_data();
 	do_action( 'wp_session_commit' );
 }
-add_action( 'shutdown', 'wp_session_write_close' );
+if ( ! defined( 'WP_CLI' ) || false === WP_CLI ) {
+	add_action( 'shutdown', 'wp_session_write_close' );
+}
 
 /**
  * Clean up expired sessions by removing data and their expiration entries from

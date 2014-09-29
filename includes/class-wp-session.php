@@ -84,7 +84,7 @@ final class WP_Session extends Recursive_ArrayAccess {
 				add_option( "_wp_session_expires_{$this->session_id}", $this->expires, '', 'no' );
 			}
 		} else {
-			$this->session_id = $this->generate_id();
+			$this->session_id = WP_Session_Utils::generate_id();
 			$this->set_expiration();
 		}
 
@@ -122,18 +122,6 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 */
 	protected function set_cookie() {
 		setcookie( WP_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN );
-	}
-
-	/**
-	 * Generate a cryptographically strong unique ID for the session token.
-	 *
-	 * @return string
-	 */
-	protected function generate_id() {
-		require_once( ABSPATH . 'wp-includes/class-phpass.php' );
-		$hasher = new PasswordHash( 8, false );
-
-		return md5( $hasher->get_random_bytes( 32 ) );
 	}
 
 	/**
@@ -201,7 +189,7 @@ final class WP_Session extends Recursive_ArrayAccess {
 			delete_option( "_wp_session_{$this->session_id}" );
 		}
 
-		$this->session_id = $this->generate_id();
+		$this->session_id = WP_Session_Utils::generate_id();
 
 		$this->set_cookie();
 	}

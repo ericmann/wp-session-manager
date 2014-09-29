@@ -70,7 +70,17 @@ class WP_Session_Command extends WP_CLI_Command {
 	 * @param array $assoc_args
 	 */
 	public function generate( $args, $assoc_args ) {
+		$count = absint( $args[0] );
+		$date = isset( $assoc_args['expires'] ) ? $assoc_args['expires'] : null;
 
+		$notify = \WP_CLI\Utils\make_progress_bar( 'Generating sessions', $count );
+
+		for( $i = 0; $i < $count; $i++ ) {
+			WP_Session_Utils::create_dummy_session( $date );
+			$notify->tick();
+		}
+
+		$notify->finish();
 	}
 }
 WP_CLI::add_command( 'session', 'WP_Session_Command' );
