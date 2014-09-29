@@ -65,6 +65,59 @@ class WP_Session_Utils {
 	}
 
 	/**
+	 * Delete old sessions from the database.
+	 *
+	 * @param int $limit Maximum number of sessions to delete.
+	 *
+	 * @global wpdb $wpdb
+	 *
+	 * @return int Sessions deleted.
+	 */
+	public static function delete_old_sessions( $batch = 1000 ) {
+		global $wpdb;
+
+		$batch = absint( $batch );
+		$keys = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%' ORDER BY option_value ASC LIMIT 0, {$batch}" );
+
+		$now = time();
+		$expired = array();
+		$count = 0;
+
+		foreach( $keys as $expiration ) {
+			$key = $expiration->option_name;
+			$expires = $expiration->option_value;
+
+			if ( $now > $expires ) {
+				$session_id = addslashes( substr( $key, 20 ) );
+
+				$expired[] = $key;
+				$expired[] = "_wp_session_{$session_id}";
+
+				$count += 1;
+			}
+		}
+
+		// Delete expired sessions
+		if ( ! empty( $expired ) ) {
+			$names = implode( "','", $expired );
+			$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name IN ('{$names}')" );
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Remove all sessions from the database, regardless of expiration.
+	 *
+	 * @global wpdb $wpdb
+	 *
+	 * @return int Sessions deleted
+	 */
+	public static function delete_all_sessions() {
+
+	}
+
+	/**
 	 * Generate a new, random session ID.
 	 *
 	 * @return string
