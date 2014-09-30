@@ -57,6 +57,8 @@ None
 = DEV =
 * Update: Enhanced plugin organization
 * Update: Added WP_CLI support for session management
+* Update: Add Composer definitions
+* Fix: Break up the deletion of old sessions so queries don't time out under load
 
 = 1.1.2 =
 * Fix a race condition where session expiration options could accidentally be set to autoload
