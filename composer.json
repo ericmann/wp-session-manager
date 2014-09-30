@@ -1,0 +1,7 @@
+{
+	"name"             : "ericmann/wp-session-manager",
+	"type"             : "wordpress-plugin",
+	"minimum-stability": "dev",
+	"require-dev"      : {},
+	"require"          : {}
+}

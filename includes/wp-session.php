@@ -78,7 +78,9 @@ function wp_session_start() {
 
 	return $wp_session->session_started();
 }
-add_action( 'plugins_loaded', 'wp_session_start' );
+if ( ! defined( 'WP_CLI' ) || false === WP_CLI ) {
+	add_action( 'plugins_loaded', 'wp_session_start' );
+}
 
 /**
  * Return the current session status.
@@ -113,7 +115,9 @@ function wp_session_write_close() {
 	$wp_session->write_data();
 	do_action( 'wp_session_commit' );
 }
-add_action( 'shutdown', 'wp_session_write_close' );
+if ( ! defined( 'WP_CLI' ) || false === WP_CLI ) {
+	add_action( 'shutdown', 'wp_session_write_close' );
+}
 
 /**
  * Clean up expired sessions by removing data and their expiration entries from
@@ -123,34 +127,20 @@ add_action( 'shutdown', 'wp_session_write_close' );
  * of a scheduled task or cron job.
  */
 function wp_session_cleanup() {
-	global $wpdb;
-
 	if ( defined( 'WP_SETUP_CONFIG' ) ) {
 		return;
 	}
 
 	if ( ! defined( 'WP_INSTALLING' ) ) {
-		$expiration_keys = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%'" );
+		/**
+		 * Determine the size of each batch for deletion.
+		 *
+		 * @param int
+		 */
+		$batch_size = apply_filters( 'wp_session_delete_batch_size', 1000 );
 
-		$now = time();
-		$expired_sessions = array();
-
-		foreach( $expiration_keys as $expiration ) {
-			// If the session has expired
-			if ( $now > intval( $expiration->option_value ) ) {
-				// Get the session ID by parsing the option_name
-				$session_id = addslashes(substr( $expiration->option_name, 20 ));
-
-				$expired_sessions[] = $expiration->option_name;
-				$expired_sessions[] = "_wp_session_$session_id";
-			}
-		}
-
-		// Delete all expired sessions in a single query
-		if ( ! empty( $expired_sessions ) ) {
-			$option_names = implode( "','", $expired_sessions );
-			$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name IN ('$option_names')" );
-		}
+		// Delete a batch of old sessions
+		WP_Session_Utils::delete_old_sessions( $batch_size );
 	}
 
 	// Allow other plugins to hook in to the garbage collection process.
