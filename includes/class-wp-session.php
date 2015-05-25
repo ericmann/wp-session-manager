@@ -118,10 +118,14 @@ final class WP_Session extends Recursive_ArrayAccess {
 	}
 
 	/**
-	 * Set the session cookie
-	 */
+	* Set the session cookie
+     	* @uses apply_filters Calls `wp_session_cookie_secure` to set the $secure parameter of setcookie()
+     	* @uses apply_filters Calls `wp_session_cookie_httponly` to set the $httponly parameter of setcookie()
+     	*/
 	protected function set_cookie() {
-		setcookie( WP_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN );
+        	$secure = apply_filters('wp_session_cookie_secure', false);
+        	$httponly = apply_filters('wp_session_cookie_httponly', false);
+		setcookie( WP_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
 	}
 
 	/**
