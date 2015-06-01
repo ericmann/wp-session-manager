@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Utility class for sesion utilities
+ * Utility class for session utilities
  *
  * THIS CLASS SHOULD NEVER BE INSTANTIATED
  */
@@ -37,24 +37,17 @@ class WP_Session_Utils {
 	 */
 	public static function create_dummy_session( $date = null ) {
 		// Generate our date
-		if ( null !== $date ) {
-			$time = strtotime( $date );
-
-			if ( false === $time ) {
-				$date = null;
-			} else {
-				$expires = date( 'U', strtotime( $date ) );
-			}
-		}
-
-		// If null was passed, or if the string parsing failed, fall back on a default
-		if ( null === $date ) {
+		$time = null !== $date ? strtotime( $date ) : false;
+		//  If null was passed, or if the string parsing failed, fall back on a default
+		if ( false === $time ) {
 			/**
 			 * Filter the expiration of the session in the database
 			 *
 			 * @param int
 			 */
-			$expires = time() + (int) apply_filters( 'wp_session_expiration', 30 * 60 );
+			$expires = time() + (int)apply_filters( 'wp_session_expiration', 30 * 60 );
+		} else {
+			$expires = date( 'U', strtotime( $date ) );
 		}
 
 		$session_id = self::generate_id();
@@ -132,4 +125,4 @@ class WP_Session_Utils {
 
 		return md5( $hash->get_random_bytes( 32 ) );
 	}
-} 
+}
