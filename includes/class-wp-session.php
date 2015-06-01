@@ -116,13 +116,18 @@ final class WP_Session extends Recursive_ArrayAccess {
 
 	/**
 	* Set the session cookie
-     	* @uses apply_filters Calls `wp_session_cookie_secure` to set the $secure parameter of setcookie()
-     	* @uses apply_filters Calls `wp_session_cookie_httponly` to set the $httponly parameter of setcookie()
-     	*/
+	* @uses apply_filters Calls `wp_session_cookie_secure` to set the $secure parameter of setcookie()
+	* @uses apply_filters Calls `wp_session_cookie_httponly` to set the $httponly parameter of setcookie()
+	 * @return boolean 	from http://php.net/manual/en/function.setcookie.php :
+	 * 									If output exists prior to calling this function, setcookie() will fail and return FALSE.
+	 * 									If setcookie() successfully runs, it will return TRUE.
+	 * 									This does not indicate whether the user accepted the cookie.
+	 *
+	 */
 	protected function set_cookie() {
-        	$secure = apply_filters('wp_session_cookie_secure', false);
-        	$httponly = apply_filters('wp_session_cookie_httponly', false);
-		setcookie( WP_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+		$secure = apply_filters('wp_session_cookie_secure', false);
+		$httponly = apply_filters('wp_session_cookie_httponly', false);
+		return setcookie( WP_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
 	}
 
 	/**
