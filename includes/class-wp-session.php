@@ -1,6 +1,6 @@
 <?php
 /**
- * WordPress session managment.
+ * WordPress session management.
  *
  * Standardizes WordPress session data using database-backed options for storage.
  * for storing user session information.
@@ -48,8 +48,6 @@ final class WP_Session extends Recursive_ArrayAccess {
 	/**
 	 * Retrieve the current session instance.
 	 *
-	 * @param bool $session_id Session ID from which to populate data.
-	 *
 	 * @return bool|WP_Session
 	 */
 	public static function get_instance() {
@@ -65,7 +63,6 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 * Will rebuild the session collection from the given session ID if it exists. Otherwise, will
 	 * create a new session with that ID.
 	 *
-	 * @param $session_id
 	 * @uses apply_filters Calls `wp_session_expiration` to determine how long until sessions expire.
 	 */
 	protected function __construct() {
@@ -146,7 +143,7 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 */
 	public function write_data() {
 		$option_key = "_wp_session_{$this->session_id}";
-		
+
 		if ( false === get_option( $option_key ) ) {
 			add_option( "_wp_session_{$this->session_id}", $this->container, '', 'no' );
 			add_option( "_wp_session_expires_{$this->session_id}", $this->expires, '', 'no' );
