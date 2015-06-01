@@ -66,7 +66,7 @@ function wp_session_regenerate_id( $delete_old_session = false ) {
  */
 function wp_session_start() {
 	$wp_session = WP_Session::get_instance();
-	do_action( 'wp_session_start' );
+	do_action( 'wp_session_start', $wp_session );
 	return $wp_session->session_started();
 }
 // start session if using command line
