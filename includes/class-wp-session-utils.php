@@ -14,6 +14,7 @@ class WP_Session_Utils {
 	 * @return int
 	 */
 	public static function count_sessions() {
+		/* @type WPDB $wpdb */
 		global $wpdb;
 
 		$query = "SELECT COUNT(*) FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%'";
@@ -67,10 +68,16 @@ class WP_Session_Utils {
 	 * @return int Sessions deleted.
 	 */
 	public static function delete_old_sessions( $limit = 1000 ) {
+		/* @type WPDB $wpdb */
 		global $wpdb;
 
 		$limit = absint( $limit );
-		$keys = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%' ORDER BY option_value ASC LIMIT 0, {$limit}" );
+		$keys = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%' ORDER BY option_value ASC LIMIT 0, %d",
+				$limit
+			)
+		);
 
 		$now = time();
 		$expired = array();
@@ -92,8 +99,12 @@ class WP_Session_Utils {
 
 		// Delete expired sessions
 		if ( ! empty( $expired ) ) {
-			$names = implode( "','", $expired );
-			$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name IN ('{$names}')" );
+			$wpdb->query(
+				$wpdb->prepare(
+					"DELETE FROM $wpdb->options WHERE option_name IN ('%s')",
+					implode( "','", $expired )
+				)
+			);
 		}
 
 		return $count;
@@ -107,6 +118,7 @@ class WP_Session_Utils {
 	 * @return int Sessions deleted
 	 */
 	public static function delete_all_sessions() {
+		/* @type WPDB $wpdb */
 		global $wpdb;
 
 		$count = $wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_wp_session_%'" );
@@ -122,7 +134,6 @@ class WP_Session_Utils {
 	public static function generate_id() {
 		require_once( ABSPATH . 'wp-includes/class-phpass.php' );
 		$hash = new PasswordHash( 8, false );
-
 		return md5( $hash->get_random_bytes( 32 ) );
 	}
 }
