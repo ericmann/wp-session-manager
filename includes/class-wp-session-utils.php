@@ -100,7 +100,14 @@ class WP_Session_Utils {
 		// Delete expired sessions
 		if ( ! empty( $expired ) ) {
 			$names = implode( "','", $expired );
-			$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name IN ('{$names}')" );
+			$wpdb->query( $wpdb->prepare(
+					"
+						DELETE FROM $wpdb->options
+						WHERE option_name
+						IN ('%s')
+					",
+					$names
+			) );
 		}
 
 		return $count;
