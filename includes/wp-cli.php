@@ -79,11 +79,12 @@ class WP_Session_Command extends \WP_CLI_Command {
 		$batch = isset( $assoc_args['batch'] ) ? absint( $assoc_args['batch'] ) : apply_filters( 'wp_session_delete_batch_size', 1000 );
 
 		switch ( $all ) {
+			
 			case true:
 				$count = WP_Session_Utils::delete_all_sessions();
-
 				\WP_CLI::line( sprintf( 'Deleted all %d sessions.', $count ) );
 				break;
+
 			case false:
 				do {
 					$count = WP_Session_Utils::delete_old_sessions( $batch );

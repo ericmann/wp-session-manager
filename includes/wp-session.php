@@ -1,6 +1,6 @@
 <?php
 /**
- * WordPress session managment.
+ * WordPress session management.
  *
  * Standardizes WordPress session data and uses either database transients or in-memory caching
  * for storing user session information.
@@ -16,9 +16,7 @@
  * @return int
  */
 function wp_session_cache_expire() {
-	$wp_session = WP_Session::get_instance();
-
-	return $wp_session->cache_expiration();
+	return WP_Session::get_instance()->cache_expiration();
 }
 
 /**
@@ -32,11 +30,10 @@ function wp_session_commit() {
  * Load a JSON-encoded string into the current session.
  *
  * @param string $data
+ * @return bool
  */
 function wp_session_decode( $data ) {
-	$wp_session = WP_Session::get_instance();
-
-	return $wp_session->json_in( $data );
+	return WP_Session::get_instance()->json_in( $data );
 }
 
 /**
@@ -45,9 +42,7 @@ function wp_session_decode( $data ) {
  * @return string
  */
 function wp_session_encode() {
-	$wp_session = WP_Session::get_instance();
-
-	return $wp_session->json_out();
+	return WP_Session::get_instance()->json_out();
 }
 
 /**
@@ -58,10 +53,7 @@ function wp_session_encode() {
  * @return bool
  */
 function wp_session_regenerate_id( $delete_old_session = false ) {
-	$wp_session = WP_Session::get_instance();
-
-	$wp_session->regenerate_id( $delete_old_session );
-
+	WP_Session::get_instance()->regenerate_id( $delete_old_session );
 	return true;
 }
 
@@ -74,10 +66,10 @@ function wp_session_regenerate_id( $delete_old_session = false ) {
  */
 function wp_session_start() {
 	$wp_session = WP_Session::get_instance();
-	do_action( 'wp_session_start' );
-
+	do_action( 'wp_session_start', $wp_session );
 	return $wp_session->session_started();
 }
+// start session if using command line
 if ( ! defined( 'WP_CLI' ) || false === WP_CLI ) {
 	add_action( 'plugins_loaded', 'wp_session_start' );
 }
@@ -88,9 +80,8 @@ if ( ! defined( 'WP_CLI' ) || false === WP_CLI ) {
  * @return int
  */
 function wp_session_status() {
-	$wp_session = WP_Session::get_instance();
 
-	if ( $wp_session->session_started() ) {
+	if ( WP_Session::get_instance()->session_started() ) {
 		return PHP_SESSION_ACTIVE;
 	}
 
@@ -101,20 +92,17 @@ function wp_session_status() {
  * Unset all session variables.
  */
 function wp_session_unset() {
-	$wp_session = WP_Session::get_instance();
-
-	$wp_session->reset();
+	WP_Session::get_instance()->reset();
 }
 
 /**
  * Write session data and end session
  */
 function wp_session_write_close() {
-	$wp_session = WP_Session::get_instance();
-
-	$wp_session->write_data();
+	WP_Session::get_instance()->write_data();
 	do_action( 'wp_session_commit' );
 }
+// stop session if using command line
 if ( ! defined( 'WP_CLI' ) || false === WP_CLI ) {
 	add_action( 'shutdown', 'wp_session_write_close' );
 }
