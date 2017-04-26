@@ -4,7 +4,7 @@ Donate link:       http://jumping-duck.com/wordpress/plugins
 Tags:              session
 Requires at least: 3.4.2
 Tested up to:      4.7.4
-Stable tag:        1.2.1
+Stable tag:        1.2.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,6 +53,9 @@ This value can be changed by using the `wp_session_expiration` filter:
 None
 
 == Changelog ==
+
+= 1.2.2 =
+* Update: Use regex pattern matching to ensure session IDs are identical going in/out of the DB to account for encoding differences
 
 = 1.2.1 =
 * Update: Additional filters for the `setcookie` parameters

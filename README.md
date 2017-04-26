@@ -52,6 +52,10 @@ None
 Changelog
 ---------
 
+**1.2.2**
+
+- Update: Use regex pattern matching to ensure session IDs are identical going in/out of the DB to account for encoding differences
+
 **1.2.1**
 
 - Update: Additional filters for the `setcookie` parameters
