@@ -52,6 +52,12 @@ None
 Changelog
 ---------
 
+**1.2.1**
+
+- Update: Additional filters for the `setcookie` parameters
+- Update: Expose the Session ID publicly
+- Fix: Better handling for malformed or broken session names
+
 **1.2.0**
 
 - Update: Enhanced plugin organization
@@ -100,7 +106,7 @@ Additional Information
 **Donate link:** http://jumping-duck.com/wordpress/plugins
 **Tags:** session
 **Requires at least:** 3.4.2
-**Tested up to:** 4.0
-**Stable tag:** 1.2.0
+**Tested up to:** 4.7.4
+**Stable tag:** 1.2.1
 **License:** GPLv2 or later
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html

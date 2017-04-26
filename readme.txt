@@ -1,12 +1,12 @@
 === WP Session Manager ===
-Contributors: ericmann
-Donate link: http://jumping-duck.com/wordpress/plugins
-Tags: session
+Contributors:      ericmann
+Donate link:       http://jumping-duck.com/wordpress/plugins
+Tags:              session
 Requires at least: 3.4.2
-Tested up to: 4.0
-Stable tag: 1.2.0
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Tested up to:      4.7.4
+Stable tag:        1.2.1
+License:           GPLv2 or later
+License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 
 Prototype session management for WordPress.
 
@@ -53,6 +53,11 @@ This value can be changed by using the `wp_session_expiration` filter:
 None
 
 == Changelog ==
+
+= 1.2.1 =
+* Update: Additional filters for the `setcookie` parameters
+* Update: Expose the Session ID publicly
+* Fix: Better handling for malformed or broken session names
 
 = 1.2.0 =
 * Update: Enhanced plugin organization
