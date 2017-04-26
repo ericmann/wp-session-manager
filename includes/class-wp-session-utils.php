@@ -88,7 +88,7 @@ class WP_Session_Utils {
 			$expires = $expiration->option_value;
 
 			if ( $now > $expires ) {
-				$session_id = addslashes( substr( $key, 20 ) );
+				$session_id = preg_replace("/[^A-Za-z0-9_]/", '', substr( $key, 20 ) );
 
 				$expired[] = $key;
 				$expired[] = "_wp_session_{$session_id}";

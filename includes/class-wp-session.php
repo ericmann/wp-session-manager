@@ -73,9 +73,9 @@ final class WP_Session extends Recursive_ArrayAccess {
 			$cookie = stripslashes( $_COOKIE[WP_SESSION_COOKIE] );
 			$cookie_crumbs = explode( '||', $cookie );
 
-			$this->session_id = $cookie_crumbs[0];
-			$this->expires = $cookie_crumbs[1];
-			$this->exp_variant = $cookie_crumbs[2];
+            $this->session_id = preg_replace("/[^A-Za-z0-9_]/", '', $cookie_crumbs[0] );
+            $this->expires = absint( $cookie_crumbs[1] );
+            $this->exp_variant = absint( $cookie_crumbs[2] );
 
 			// Update the session expiration if we're past the variant time
 			if ( time() > $this->exp_variant ) {
