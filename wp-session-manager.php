@@ -12,13 +12,9 @@
 require __DIR__ . '/vendor/autoload.php';
 
 // Queue up the session stack
-$handler_stack = EAMann\Sessionz\Manager::initialize()->addHandler( new \EAMann\Sessionz\Handlers\OptionsHandler() );
-
-if ( defined( 'WP_SESSION_ENC_KEY' )&& WP_SESSION_ENC_KEY ) {
-	$handler_stack = $handler_stack->addHandler( new \EAMann\Sessionz\Handlers\EncryptionHandler( WP_SESSION_ENC_KEY ) );
-}
-
-$handler_stack->addHandler( new \EAMann\Sessionz\Handlers\MemoryHandler() );
+EAMann\Sessionz\Manager::initialize()
+	->addHandler( new \EAMann\Sessionz\Handlers\OptionsHandler() )
+	->addHandler( new \EAMann\Sessionz\Handlers\MemoryHandler() );
 
 // Include WP_CLI routines early
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
