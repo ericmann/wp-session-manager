@@ -15,5 +15,7 @@
 		}
 	],
 	"require-dev"      : {},
-	"require"          : {}
+	"require"          : {
+		"ericmann/sessionz": "^0.1.0"
+	}
 }
