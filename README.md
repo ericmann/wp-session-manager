@@ -62,6 +62,11 @@ None
 Changelog
 ---------
 
+**3.0.0**
+
+- Update: Refactor to use Sessionz
+- Update: Add encryption at rest if `WP_SESSION_ENC_KEY` is set
+
 **2.0.2**
 - Fix: Wire the data storage migration to a session init hook to ensure it runs.
 - Fix: Clean up sessions when all data is removed.
@@ -119,6 +124,9 @@ Changelog
 Upgrade Notice
 --------------
 
+**3.0**
+This version requires PHP 5.6 or higher and uses Composer-powered autoloading to incorporate Sessionz for transparent session management.
+
 **2.0**
 
 This version will create a new database table for storing session data! If you do not want such a table, please set the `WP_SESSION_USE_OPTIONS` constant to `true` in `wp-config.php`! Upgrading will delete all existing sessions!
@@ -135,6 +143,6 @@ Additional Information
 **Tags:** session
 **Requires at least:** 4.7
 **Tested up to:** 4.9.1
-**Stable tag:** 2.0.2
+**Stable tag:** 3.0
 **License:** GPLv2 or later
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html

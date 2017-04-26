@@ -7,6 +7,18 @@
  */
 class WP_Session_Utils {
 	/**
+	 * Sanitize a potential Session ID so we aren't fetching broken data
+	 * from the options table.
+	 *
+	 * @param string $id
+	 *
+	 * @return string
+	 */
+	private function sanitize( $id ) {
+		return preg_replace( "/[^A-Za-z0-9_]/", '', $id );
+	}
+
+	/**
 	 * Count the total sessions in the database.
 	 *
 	 * @global wpdb $wpdb
@@ -36,42 +48,21 @@ class WP_Session_Utils {
 
 	/**
 	 * Create a new, random session in the database.
-	 *
-	 * @param null|string $date
 	 */
-	public static function create_dummy_session( $date = null ) {
-		// Generate our date
-		if ( null !== $date ) {
-			$time = strtotime( $date );
-
-			if ( false === $time ) {
-				$date = null;
-			} else {
-				$expires = date( 'U', strtotime( $date ) );
-			}
-		}
-
-		// If null was passed, or if the string parsing failed, fall back on a default
-		if ( null === $date ) {
-			/**
-			 * Filter the expiration of the session in the database
-			 *
-			 * @param int
-			 */
-			$expires = time() + (int) apply_filters( 'wp_session_expiration', 30 * 60 );
-		}
+	public static function create_dummy_session() {
+		$item = new \EAMann\Sessionz\Objects\Option("" );
 
 		$session_id = self::generate_id();
 
 		// Store the session
         if (defined('WP_SESSION_USE_OPTIONS') && WP_SESSION_USE_OPTIONS) {
-            add_option( "_wp_session_{$session_id}", array(), '', 'no' );
-            add_option( "_wp_session_expires_{$session_id}", $expires, '', 'no' );
+            add_option( "_wp_session_{$session_id}", $item->data, '', 'no' );
+		    add_option( "_wp_session_expires_{$session_id}", $item->time, '', 'no' );
         } else {
             self::add_session(array(
                 'session_key' => $session_id,
                 'session_value' => array(),
-                'session_expiry' => $expires
+                'session_expiry' => $item->time
             ));
         }
 	}

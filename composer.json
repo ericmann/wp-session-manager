@@ -1,6 +1,7 @@
 {
 	"name"             : "ericmann/wp-session-manager",
 	"description"      : "Prototype session management for WordPress.",
+	"version"          : "3.0.0",
 	"type"             : "wordpress-plugin",
 	"keywords"         : ["session"],
 	"homepage"         : "https://github.com/ericmann/wp-session-manager",
@@ -16,6 +17,16 @@
 	],
 	"require-dev"      : {},
 	"require"          : {
-		"ericmann/sessionz": "^0.1.0"
+		"php": ">=5.6",
+		"ericmann/sessionz": "^0.2.0"
+	},
+	"autoload": {
+		"classmap": [
+			"includes/Option.php",
+			"includes/OptionsHandler.php"
+		],
+		"files": [
+			"includes/deprecated.php"
+		]
 	}
 }

@@ -3,28 +3,26 @@
  * Plugin Name: WP Session Manager
  * Plugin URI:  https://paypal.me/eam
  * Description: Prototype session management for WordPress.
- * Version:     2.0.2
+ * Version:     3.0.0
  * Author:      Eric Mann
  * Author URI:  http://eamann.com
  * License:     GPLv2+
  */
 
-// let users change the session cookie name
-if( ! defined( 'WP_SESSION_COOKIE' ) ) {
-	define( 'WP_SESSION_COOKIE', '_wp_session' );
+require __DIR__ . '/vendor/autoload.php';
+
+// Queue up the session stack
+$handler_stack = EAMann\Sessionz\Manager::initialize()->addHandler( new \EAMann\Sessionz\Handlers\OptionsHandler() );
+
+if ( defined( 'WP_SESSION_ENC_KEY' )&& WP_SESSION_ENC_KEY ) {
+	$handler_stack = $handler_stack->addHandler( new \EAMann\Sessionz\Handlers\EncryptionHandler( WP_SESSION_ENC_KEY ) );
 }
 
-if ( ! class_exists( 'Recursive_ArrayAccess' ) ) {
-	include 'includes/class-recursive-arrayaccess.php';
-}
-
-// Include utilities class
-if ( ! class_exists( 'WP_Session_Utils' ) ) {
-	include 'includes/class-wp-session-utils.php';
-}
+$handler_stack->addHandler( new \EAMann\Sessionz\Handlers\MemoryHandler() );
 
 // Include WP_CLI routines early
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	include 'includes/class-wp-session-utils.php';
 	include 'includes/wp-cli.php';
 }
 
@@ -78,4 +76,9 @@ function create_sm_sessions_table() {
 
 		WP_Session_Utils::delete_all_sessions_from_options();
 	}
+}
+
+// Start up session management, if we're not in the CLI
+if ( ! defined( 'WP_CLI' ) || false === WP_CLI ) {
+	add_action( 'plugins_loaded', 'session_start' );
 }

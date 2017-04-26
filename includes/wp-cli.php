@@ -127,7 +127,7 @@ class WP_Session_Command extends \WP_CLI_Command {
 		$notify = \WP_CLI\Utils\make_progress_bar( 'Generating sessions', $count );
 
 		for ( $i = 0; $i < $count; $i ++ ) {
-			WP_Session_Utils::create_dummy_session( $date );
+			WP_Session_Utils::create_dummy_session();
 			$notify->tick();
 		}
 
