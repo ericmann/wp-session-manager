@@ -80,8 +80,8 @@ final class WP_Session extends Recursive_ArrayAccess {
 			// Update the session expiration if we're past the variant time
 			if ( time() > $this->exp_variant ) {
 				$this->set_expiration();
-				delete_option( "_wp_session_expires_{$this->session_id}" );
-				add_option( "_wp_session_expires_{$this->session_id}", $this->expires, '', 'no' );
+				delete_option( "wordpress_session_expires_{$this->session_id}" );
+				add_option( "wordpress_session_expires_{$this->session_id}", $this->expires, '', 'no' );
 			}
 		} else {
 			$this->session_id = WP_Session_Utils::generate_id();
@@ -136,7 +136,7 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 * @return array
 	 */
 	protected function read_data() {
-		$this->container = get_option( "_wp_session_{$this->session_id}", array() );
+		$this->container = get_option( "wordpress_session_{$this->session_id}", array() );
 
 		return $this->container;
 	}
@@ -145,14 +145,14 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 * Write the data from the current session to the data storage system.
 	 */
 	public function write_data() {
-		$option_key = "_wp_session_{$this->session_id}";
+		$option_key = "wordpress_session_{$this->session_id}";
 		
 		if ( false === get_option( $option_key ) ) {
-			add_option( "_wp_session_{$this->session_id}", $this->container, '', 'no' );
-			add_option( "_wp_session_expires_{$this->session_id}", $this->expires, '', 'no' );
+			add_option( "wordpress_session_{$this->session_id}", $this->container, '', 'no' );
+			add_option( "wordpress_session_expires_{$this->session_id}", $this->expires, '', 'no' );
 		} else {
-			delete_option( "_wp_session_{$this->session_id}" );
-			add_option( "_wp_session_{$this->session_id}", $this->container, '', 'no' );
+			delete_option( "wordpress_session_{$this->session_id}" );
+			add_option( "wordpress_session_{$this->session_id}", $this->container, '', 'no' );
 		}
 	}
 
@@ -190,7 +190,7 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 */
 	public function regenerate_id( $delete_old = false ) {
 		if ( $delete_old ) {
-			delete_option( "_wp_session_{$this->session_id}" );
+			delete_option( "wordpress_session_{$this->session_id}" );
 		}
 
 		$this->session_id = WP_Session_Utils::generate_id();

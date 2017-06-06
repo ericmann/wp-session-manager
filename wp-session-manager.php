@@ -11,7 +11,7 @@
 
 // let users change the session cookie name
 if( ! defined( 'WP_SESSION_COOKIE' ) ) {
-	define( 'WP_SESSION_COOKIE', '_wp_session' );
+	define( 'WP_SESSION_COOKIE', 'wordpress_session' );
 }
 
 if ( ! class_exists( 'Recursive_ArrayAccess' ) ) {
