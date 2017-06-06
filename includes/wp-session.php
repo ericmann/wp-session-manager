@@ -68,7 +68,7 @@ function wp_session_regenerate_id( $delete_old_session = false ) {
 /**
  * Start new or resume existing session.
  *
- * Resumes an existing session based on a value sent by the _wp_session cookie.
+ * Resumes an existing session based on a value sent by the wordpress_session cookie.
  *
  * @return bool
  */
