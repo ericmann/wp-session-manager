@@ -31,10 +31,12 @@ Frequently Asked Questions
 
 First, make a reference to the WP_Session instance.  Then, use it like an associative array, just like `$_SESSION`:
 
-`$wp_session = WP_Session::get_instance();
+```
+$wp_session = WP_Session::get_instance();
 $wp_session['user_name'] = 'User Name';                            // A string
 $wp_session['user_contact'] = array( 'email' => 'user@name.com' ); // An array
-$wp_session['user_obj'] = new WP_User( 1 );                        // An object`
+$wp_session['user_obj'] = new WP_User( 1 );                        // An object
+```
 
 **How long do session variables live?**
 
