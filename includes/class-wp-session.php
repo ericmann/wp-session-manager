@@ -179,7 +179,7 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 * @return bool
 	 */
 	public function json_in( $data ) {
-		$array = json_decode( $data );
+		$array = json_decode( $data, true );
 
 		if ( is_array( $array ) ) {
 			$this->container = $array;
