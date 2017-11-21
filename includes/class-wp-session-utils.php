@@ -16,7 +16,7 @@ class WP_Session_Utils {
 	public static function count_sessions() {
 		global $wpdb;
 
-		$query = "SELECT COUNT(*) FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%'";
+		$query = "SELECT COUNT(*) FROM {$wpdb->prefix}sm_sessions";
 
 		/**
 		 * Filter the query in case tables are non-standard.
@@ -60,8 +60,7 @@ class WP_Session_Utils {
 		$session_id = self::generate_id();
 
 		// Store the session
-		add_option( "_wp_session_{$session_id}", array(), '', 'no' );
-		add_option( "_wp_session_expires_{$session_id}", $expires, '', 'no' );
+		self::add_session($session_id, $expires);
 	}
 
 	/**
@@ -77,22 +76,14 @@ class WP_Session_Utils {
 		global $wpdb;
 
 		$limit = absint( $limit );
-		$keys = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%' ORDER BY option_value ASC LIMIT 0, {$limit}" );
-
 		$now = time();
 		$expired = array();
 		$count = 0;
+		$keys = $wpdb->get_results( "SELECT session_id FROM {$wpdb->prefix}sm_sessions WHERE session_expiry < {$now} LIMIT 0, {$limit}" );
 
-		foreach( $keys as $expiration ) {
-			$key = $expiration->option_name;
-			$expires = $expiration->option_value;
-
-			if ( $now > $expires ) {
-				$session_id = preg_replace("/[^A-Za-z0-9_]/", '', substr( $key, 20 ) );
-
-				$expired[] = $key;
-				$expired[] = "_wp_session_{$session_id}";
-
+		if ( !empty($keys) ) {
+			foreach ( $keys as $key ) {
+				$expired[] = $key->session_id;
 				$count += 1;
 			}
 		}
@@ -101,7 +92,7 @@ class WP_Session_Utils {
 		if ( ! empty( $expired ) ) {
 		    $placeholders = array_fill( 0, count( $expired ), '%s' );
 		    $format = implode( ', ', $placeholders );
-		    $query = "DELETE FROM $wpdb->options WHERE option_name IN ($format)";
+		    $query = "DELETE FROM {$wpdb->prefix}sm_sessions WHERE session_id IN ($format)";
 
 		    $prepared = $wpdb->prepare( $query, $expired );
 			$wpdb->query( $prepared );
@@ -120,7 +111,7 @@ class WP_Session_Utils {
 	public static function delete_all_sessions() {
 		global $wpdb;
 
-		$count = $wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_wp_session_%'" );
+		$count = $wpdb->query( "TRUNCATE TABLE {$wpdb->prefix}sm_sessions" );
 
 		return (int) ( $count / 2 );
 	}
@@ -135,5 +126,96 @@ class WP_Session_Utils {
 		$hash = new PasswordHash( 8, false );
 
 		return md5( $hash->get_random_bytes( 32 ) );
+	}
+
+	/**
+	 * Get session from database.
+	 *
+	 */
+	public static function get_session( $session_id, $default = false ) {
+
+		global $wpdb;
+
+		$session = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT * FROM {$wpdb->prefix}sm_sessions WHERE session_key = %s",
+				esc_sql($session_id)
+			)
+		);
+
+		if ( $session === NULL ) {
+			return $default;
+		}
+
+		return $session;
+	}
+
+
+	/**
+	 * Add session in database.
+	 *
+	 */
+	public static function add_session( $session_id, $expires = 0 ) {
+		global $wpdb;
+
+		if ( $session_id == '' || $expires == '' ) {
+			return;
+		}
+
+		$result = $wpdb->insert(
+			"{$wpdb->prefix}sm_sessions",
+			array(
+				'session_key' => esc_sql( $session_id ),
+				'session_expiry' => absint( $expires )
+			),
+			array(
+				'%s',
+				'%d'
+			)
+		);
+
+		if ( $result !== false ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Delete session in database.
+	 *
+	 */
+	public static function delete_session( $session_id ) {
+		global $wpdb;
+
+		if ( $session_id == '' ) {
+			return;
+		}
+
+		$wpdb->delete( "{$wpdb->prefix}sm_sessions", array( 'session_key' => esc_sql( $session_id ) ), array( '%s' ) );
+	}
+
+	/**
+	 * Update session in database.
+	 *
+	 */
+	public static function update_session( $session_id, $expires ) {
+		global $wpdb;
+
+		if ( $session_id == '' || $expires == '' ) {
+			return;
+		}
+
+		$wpdb->update(
+			"{$wpdb->prefix}sm_sessions",
+			array(
+				'session_expiry' => absint($expires)
+			),
+			array( 'session_key' => $session_id ),
+			array(
+				'%d'
+			),
+			array( '%s' )
+		);
 	}
 } 
