@@ -60,7 +60,7 @@ class WP_Session_Utils {
 		$session_id = self::generate_id();
 
 		// Store the session
-		self::add_session($session_id, $expires);
+		self::add_session( array( 'session_key' => $this->session_id, 'session_value' => array(), 'session_expiry' => $expires ) );
 	}
 
 	/**
@@ -77,28 +77,14 @@ class WP_Session_Utils {
 
 		$limit = absint( $limit );
 		$now = time();
-		$expired = array();
-		$count = 0;
-		$keys = $wpdb->get_results( "SELECT session_id FROM {$wpdb->prefix}sm_sessions WHERE session_expiry < {$now} LIMIT 0, {$limit}" );
-
-		if ( !empty($keys) ) {
-			foreach ( $keys as $key ) {
-				$expired[] = $key->session_id;
-				$count += 1;
-			}
-		}
-
-		// Delete expired sessions
-		if ( ! empty( $expired ) ) {
-		    $placeholders = array_fill( 0, count( $expired ), '%s' );
-		    $format = implode( ', ', $placeholders );
-		    $query = "DELETE FROM {$wpdb->prefix}sm_sessions WHERE session_id IN ($format)";
-
-		    $prepared = $wpdb->prepare( $query, $expired );
-			$wpdb->query( $prepared );
-		}
-
-		return $count;
+		
+		$count = $wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$wpdb->prefix}sm_sessions WHERE session_expiry < %s LIMIT %d",
+				$now,
+				$limit
+			)
+		);
 	}
 
 	/**
@@ -113,7 +99,7 @@ class WP_Session_Utils {
 
 		$count = $wpdb->query( "TRUNCATE TABLE {$wpdb->prefix}sm_sessions" );
 
-		return (int) ( $count / 2 );
+		return $count;
 	}
 
 	/**
@@ -131,6 +117,10 @@ class WP_Session_Utils {
 	/**
 	 * Get session from database.
 	 *
+	 * @param int $session_id The session ID to retrieve
+	 * @param mixed $default The default value to return if the option does not exist.
+	 *
+	 * @return bool|mixed Return the value set for the option or the default value
 	 */
 	public static function get_session( $session_id, $default = false ) {
 
@@ -140,82 +130,77 @@ class WP_Session_Utils {
 			$wpdb->prepare(
 				"SELECT * FROM {$wpdb->prefix}sm_sessions WHERE session_key = %s",
 				esc_sql($session_id)
-			)
+			),
+			ARRAY_A
 		);
 
 		if ( $session === NULL ) {
 			return $default;
 		}
 
-		return $session;
+		return $session['session_value'];
 	}
 
 
 	/**
 	 * Add session in database.
 	 *
+	 * @param array $data Data to update (in column => value pairs). Both $data columns and $data values should be "raw" (neither should be SQL escaped).
+	 *                    This means that if you are using GET or POST data you may need to use stripslashes() to avoid slashes ending up in the database.
+	 *
+	 * @return bool|int false if the row could not be inserted or the number of affected rows (which will always be 1). 
 	 */
-	public static function add_session( $session_id, $expires = 0 ) {
+	public static function add_session( $data = array() ) {
 		global $wpdb;
 
-		if ( $session_id == '' || $expires == '' ) {
-			return;
+		if ( empty( $data ) ) {
+			return false;
 		}
 
-		$result = $wpdb->insert(
-			"{$wpdb->prefix}sm_sessions",
-			array(
-				'session_key' => esc_sql( $session_id ),
-				'session_expiry' => absint( $expires )
-			),
-			array(
-				'%s',
-				'%d'
-			)
-		);
+		$result = $wpdb->insert( "{$wpdb->prefix}sm_sessions", $data );
 
-		if ( $result !== false ) {
-			return true;
-		}
-
-		return false;
+		return $result;
 	}
 
 	/**
 	 * Delete session in database.
 	 *
+	 * @param int $session_id The session ID to update
+	 *
+	 * @return bool
 	 */
-	public static function delete_session( $session_id ) {
+	public static function delete_session( $session_id = '' ) {
 		global $wpdb;
 
 		if ( $session_id == '' ) {
-			return;
+			return false;
 		}
 
-		$wpdb->delete( "{$wpdb->prefix}sm_sessions", array( 'session_key' => esc_sql( $session_id ) ), array( '%s' ) );
+		$wpdb->delete( "{$wpdb->prefix}sm_sessions", array( 'session_key' => $session_id ) );
+
+		return true;
 	}
 
 	/**
 	 * Update session in database.
 	 *
+	 * @param int $session_id The session ID to update
+	 * @param array $data Data to update (in column => value pairs). Both $data columns and $data values should be "raw" (neither should be SQL escaped).
+	 *                    This means that if you are using GET or POST data you may need to use stripslashes() to avoid slashes ending up in the database.
+	 *
+	 * @return bool|int the number of rows updated, or false if there is an error.
+	 *                  Keep in mind that if the $data matches what is already in the database, no rows will be updated, so 0 will be returned.
+	 *                  Because of this, you should probably check the return with false === $result
 	 */
-	public static function update_session( $session_id, $expires ) {
+	public static function update_session( $session_id = '', $data = array() ) {
 		global $wpdb;
 
-		if ( $session_id == '' || $expires == '' ) {
-			return;
+		if ( $session_id == '' || empty( $data ) ) {
+			return false;
 		}
 
-		$wpdb->update(
-			"{$wpdb->prefix}sm_sessions",
-			array(
-				'session_expiry' => absint($expires)
-			),
-			array( 'session_key' => $session_id ),
-			array(
-				'%d'
-			),
-			array( '%s' )
-		);
+		$result = $wpdb->update( "{$wpdb->prefix}sm_sessions", $data, array( 'session_key' => $session_id ) );
+		
+		return $result;
 	}
 } 

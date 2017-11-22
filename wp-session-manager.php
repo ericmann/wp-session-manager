@@ -50,7 +50,8 @@ function create_sm_sessions_table() {
 
 		$table = "CREATE TABLE {$wpdb->prefix}sm_sessions (
 		  session_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-		  session_key char(32) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+		  session_key char(32) NOT NULL,
+		  session_value LONGTEXT NOT NULL,
 		  session_expiry BIGINT(20) UNSIGNED NOT NULL,
 		  PRIMARY KEY  (session_key),
 		  UNIQUE KEY session_id (session_id)
