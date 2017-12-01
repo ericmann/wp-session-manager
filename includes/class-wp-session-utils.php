@@ -16,7 +16,11 @@ class WP_Session_Utils {
 	public static function count_sessions() {
 		global $wpdb;
 
-		$query = "SELECT COUNT(*) FROM {$wpdb->prefix}sm_sessions";
+        if (defined('WP_SESSION_USE_OPTIONS') && WP_SESSION_USE_OPTIONS) {
+            $query = "SELECT COUNT(*) FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%'";
+        } else {
+            $query = "SELECT COUNT(*) FROM {$wpdb->prefix}sm_sessions";
+        }
 
 		/**
 		 * Filter the query in case tables are non-standard.
@@ -60,7 +64,16 @@ class WP_Session_Utils {
 		$session_id = self::generate_id();
 
 		// Store the session
-		self::add_session( array( 'session_key' => $this->session_id, 'session_value' => array(), 'session_expiry' => $expires ) );
+        if (defined('WP_SESSION_USE_OPTIONS') && WP_SESSION_USE_OPTIONS) {
+            add_option( "_wp_session_{$session_id}", array(), '', 'no' );
+            add_option( "_wp_session_expires_{$session_id}", $expires, '', 'no' );
+        } else {
+            self::add_session(array(
+                'session_key' => $session_id,
+                'session_value' => array(),
+                'session_expiry' => $expires
+            ));
+        }
 	}
 
 	/**
@@ -75,6 +88,10 @@ class WP_Session_Utils {
 	public static function delete_old_sessions( $limit = 1000 ) {
 		global $wpdb;
 
+        if (defined('WP_SESSION_USE_OPTIONS') && WP_SESSION_USE_OPTIONS) {
+            return self::delete_old_sessions_from_options($limit);
+        }
+
 		$limit = absint( $limit );
 		$now = time();
 		
@@ -85,7 +102,55 @@ class WP_Session_Utils {
 				$limit
 			)
 		);
+
+		return $count;
 	}
+
+    /**
+     * Delete old sessions from the options table.
+     *
+     * @param int $limit Maximum number of sessions to delete.
+     *
+     * @global wpdb $wpdb
+     *
+     * @return int Sessions deleted.
+     */
+	protected static function delete_old_sessions_from_options( $limit = 1000 ) {
+        global $wpdb;
+
+        $limit = absint( $limit );
+
+        $keys = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%' ORDER BY option_value ASC LIMIT 0, {$limit}" );
+
+        $now = time();
+        $expired = array();
+        $count = 0;
+
+        foreach( $keys as $expiration ) {
+            $key = $expiration->option_name;
+            $expires = $expiration->option_value;
+
+            if ( $now > $expires ) {
+                $session_id = preg_replace("/[^A-Za-z0-9_]/", '', substr( $key, 20 ) );
+
+                $expired[] = $key;
+                $expired[] = "_wp_session_{$session_id}";
+                $count += 1;
+            }
+ 		}
+
+ 		// Delete expired sessions
+ 		if ( ! empty( $expired ) ) {
+            $placeholders = array_fill( 0, count( $expired ), '%s' );
+            $format = implode( ', ', $placeholders );
+            $query = "DELETE FROM $wpdb->options WHERE option_name IN ($format)";
+
+            $prepared = $wpdb->prepare( $query, $expired );
+            $wpdb->query( $prepared );
+        }
+
+ 		return $count;
+    }
 
 	/**
 	 * Remove all sessions from the database, regardless of expiration.
@@ -97,10 +162,29 @@ class WP_Session_Utils {
 	public static function delete_all_sessions() {
 		global $wpdb;
 
-		$count = $wpdb->query( "TRUNCATE TABLE {$wpdb->prefix}sm_sessions" );
+        if (defined('WP_SESSION_USE_OPTIONS') && WP_SESSION_USE_OPTIONS) {
+            self::delete_old_sessions_from_options();
+        } else {
+            $count = $wpdb->query( "TRUNCATE TABLE {$wpdb->prefix}sm_sessions" );
+        }
 
 		return $count;
 	}
+
+    /**
+     * Remove all sessions from the options table, regardless of expiration.
+     *
+     * @global wpdb $wpdb
+     *
+     * @return int Sessions deleted
+     */
+	public static function delete_all_sessions_from_options() {
+        global $wpdb;
+
+        $count = $wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_wp_session_%'" );
+
+        return (int) ( $count / 2 );
+    }
 
 	/**
 	 * Generate a new, random session ID.
