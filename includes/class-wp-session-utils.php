@@ -201,13 +201,12 @@ class WP_Session_Utils {
 	/**
 	 * Get session from database.
 	 *
-	 * @param int $session_id The session ID to retrieve
-	 * @param mixed $default The default value to return if the option does not exist.
+	 * @param string $session_id The session ID to retrieve
+	 * @param array  $default    The default value to return if the option does not exist.
 	 *
-	 * @return bool|mixed Return the value set for the option or the default value
+	 * @return array Session data
 	 */
-	public static function get_session( $session_id, $default = false ) {
-
+	public static function get_session( $session_id, $default = array() ) {
 		global $wpdb;
 
 		$session = $wpdb->get_row(
@@ -222,8 +221,23 @@ class WP_Session_Utils {
 			return $default;
 		}
 
-		return $session['session_value'];
+		return unserialize($session['session_value']);
 	}
+
+    /**
+     * Test whether or not a session exists
+     *
+     * @param string $session_id The session ID to retrieve
+     *
+     * @return bool
+     */
+	public static function session_exists( $session_id ) {
+        global $wpdb;
+
+        $exists = $wpdb->get_var($wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}sm_sessions WHERE session_key = %s", $session_id));
+
+        return $exists > 0;
+    }
 
 
 	/**

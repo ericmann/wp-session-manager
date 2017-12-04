@@ -38,7 +38,7 @@ class Recursive_ArrayAccess implements ArrayAccess, Iterator, Countable {
 	 */
 	protected function __construct( $data = array() ) {
 		foreach ( $data as $key => $value ) {
-			$this[ $key ] = $value;
+			$this->container[ $key ] = $value;
 		}
 	}
 
