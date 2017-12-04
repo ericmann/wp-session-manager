@@ -62,6 +62,9 @@ None
 Changelog
 ---------
 
+**2.0.1**
+- Fix: Repair data storage that was not returning actual stored session data.
+
 **2.0.0**
 - Update: Use a table instead of options for storing session data.
 
