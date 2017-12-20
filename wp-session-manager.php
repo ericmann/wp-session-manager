@@ -35,7 +35,17 @@ if ( ! class_exists( 'WP_Session' ) ) {
 }
 
 // Create the required table.
-add_action('admin_init', 'create_sm_sessions_table' );
+add_action('admin_init', 'create_sm_sessions_table');
+add_action('wp_session_init', 'create_sm_sessions_table');
+
+/**
+ * Create the new table for housing session data if we're not still using
+ * the legacy options mechanism. This code should be invoked before
+ * instantiating the singleton session manager to ensure the table exists
+ * before trying to use it.
+ *
+ * @see https://github.com/ericmann/wp-session-manager/issues/55
+ */
 function create_sm_sessions_table() {
     if (defined('WP_SESSION_USE_OPTIONS') && WP_SESSION_USE_OPTIONS) {
         return;

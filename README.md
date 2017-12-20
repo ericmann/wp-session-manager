@@ -62,6 +62,9 @@ None
 Changelog
 ---------
 
+**2.0.2**
+- Fix: Wire the data storage migration to a session init hook to ensure it runs.
+
 **2.0.1**
 - Fix: Repair data storage that was not returning actual stored session data.
 

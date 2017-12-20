@@ -54,6 +54,15 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 */
 	public static function get_instance() {
 		if ( ! self::$instance ) {
+            /**
+             * Initialize the session object and wire up any storage.
+             *
+             * Some operations (like database migration) need to be performed
+             * before the session is able to actually be populated with data.
+             * Ensure these operations are finished by wiring them to the
+             * session object's initialization hool.
+             */
+		    do_action('wp_session_init');
 			self::$instance = new self();
 		}
 
