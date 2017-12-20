@@ -74,6 +74,13 @@ function wp_session_regenerate_id( $delete_old_session = false ) {
  */
 function wp_session_start() {
 	$wp_session = WP_Session::get_instance();
+
+    /**
+     * Session has started
+     *
+     * Allow other plugins to hook in once the session store has been
+     * initialized.
+     */
 	do_action( 'wp_session_start' );
 
 	return $wp_session->session_started();
@@ -113,6 +120,15 @@ function wp_session_write_close() {
 	$wp_session = WP_Session::get_instance();
 
 	$wp_session->write_data();
+
+    /**
+     * Session has been written to the database
+     *
+     * The session needs to be persisted to the database automatically
+     * when the request closes. Once data has been written, other operations
+     * might need to run to clean things up and purge memory. Give them the
+     * opportunity to clean up after commit.
+     */
 	do_action( 'wp_session_commit' );
 }
 if ( ! defined( 'WP_CLI' ) || false === WP_CLI ) {
@@ -143,7 +159,9 @@ function wp_session_cleanup() {
 		WP_Session_Utils::delete_old_sessions( $batch_size );
 	}
 
-	// Allow other plugins to hook in to the garbage collection process.
+    /**
+     * Allow other plugins to hook in to the garbage collection process.
+     */
 	do_action( 'wp_session_cleanup' );
 }
 add_action( 'wp_session_garbage_collection', 'wp_session_cleanup' );

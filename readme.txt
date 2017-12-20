@@ -56,6 +56,7 @@ None
 
 = 2.0.2 =
 * Fix: Wire the data storage migration to a session init hook to ensure it runs.
+* Fix: Clean up sessions when all data is removed.
 
 = 2.0.1 =
 * Fix: Repair data storage that was not returning actual stored session data.
