@@ -10,7 +10,7 @@ Adds `$_SESSION`-like functionality to WordPress.
 
 Every visitor, logged in or not, will be issued an instance of `WP_Session`.  Their instance will be identified by an ID
 stored in the `_wp_session` cookie.  Typically, session data will be stored in a WordPress transient, but if your
-installation has a caching system in-place (i.e. memcached), the session data might be stored in memory.
+installation has a caching system in-place (i.e. Redis), the session data might be stored in memory.
 
 This provides plugin and theme authors the ability to use WordPress-managed session variables without having to use the
 standard PHP `$_SESSION` superglobal.
