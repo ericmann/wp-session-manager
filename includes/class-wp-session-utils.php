@@ -243,10 +243,11 @@ class WP_Session_Utils {
 	/**
 	 * Add session in database.
 	 *
-	 * @param array $data Data to update (in column => value pairs). Both $data columns and $data values should be "raw" (neither should be SQL escaped).
-	 *                    This means that if you are using GET or POST data you may need to use stripslashes() to avoid slashes ending up in the database.
+	 * @param array $data Data to update (in column => value pairs). Both $data columns and $data values should be
+	 *                    "raw" (neither should be SQL escaped). This means that if you are using GET or POST data you
+	 *                    may need to use stripslashes() to avoid slashes ending up in the database.
 	 *
-	 * @return bool|int false if the row could not be inserted or the number of affected rows (which will always be 1). 
+	 * @return bool|int false if the row could not be inserted or the number of affected rows (which will always be 1).
 	 */
 	public static function add_session( $data = array() ) {
 		global $wpdb;
@@ -263,7 +264,7 @@ class WP_Session_Utils {
 	/**
 	 * Delete session in database.
 	 *
-	 * @param int $session_id The session ID to update
+	 * @param string $session_id The session ID to update
 	 *
 	 * @return bool
 	 */
@@ -282,13 +283,15 @@ class WP_Session_Utils {
 	/**
 	 * Update session in database.
 	 *
-	 * @param int $session_id The session ID to update
-	 * @param array $data Data to update (in column => value pairs). Both $data columns and $data values should be "raw" (neither should be SQL escaped).
-	 *                    This means that if you are using GET or POST data you may need to use stripslashes() to avoid slashes ending up in the database.
+	 * @param string $session_id The session ID to update
+	 * @param array  $data       Data to update (in column => value pairs). Both $data columns and $data values should
+	 *                           be "raw" (neither should be SQL escaped). This means that if you are using GET or POST
+	 *                           data you may need to use stripslashes() to avoid slashes ending up in the database.
 	 *
 	 * @return bool|int the number of rows updated, or false if there is an error.
-	 *                  Keep in mind that if the $data matches what is already in the database, no rows will be updated, so 0 will be returned.
-	 *                  Because of this, you should probably check the return with false === $result
+	 *                  Keep in mind that if the $data matches what is already in the database, no rows will be
+	 *                  updated, so 0 will be returned. Because of this, you should probably check the return with
+	 *                  false === $result
 	 */
 	public static function update_session( $session_id = '', $data = array() ) {
 		global $wpdb;
