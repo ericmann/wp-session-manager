@@ -32,6 +32,8 @@ function wp_session_commit() {
  * Load a JSON-encoded string into the current session.
  *
  * @param string $data
+ *
+ * @return string $data
  */
 function wp_session_decode( $data ) {
 	$wp_session = WP_Session::get_instance();
