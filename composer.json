@@ -22,6 +22,8 @@
 	},
 	"autoload": {
 		"classmap": [
+			"includes/SessionHandler.php",
+			"includes/DatabaseHandler.php",
 			"includes/Option.php",
 			"includes/OptionsHandler.php"
 		],
