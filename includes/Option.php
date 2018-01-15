@@ -7,13 +7,13 @@
  *
  * @package WP Session Manager
  * @subpackage Objects
- * @since 2.0
+ * @since 3.0
  */
-namespace EAMann\Sessionz\Objects;
+namespace EAMann\WPSession\Objects;
 
 /**
  * Class Option
- * @package EAMann\Sessionz\Objects
+ * @package EAMann\WPSession\Objects
  *
  * @property-read string $data Data enclosed by the item
  * @property-read int    $time Timestamp when the item was created
@@ -29,10 +29,18 @@ class Option {
 	 */
 	protected $_time;
 
+    /**
+     * @var int
+     */
+	protected $_expires;
+
 	public function __construct($data, $time = null)
 	{
 		$this->_data = $data;
 		$this->_time = null === $time ? time() : (int) $time;
+
+        $lifetime = (int) ini_get('session.gc_maxlifetime');
+		$this->_expires = $this->_time + $lifetime;
 	}
 
 	/**
