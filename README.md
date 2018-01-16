@@ -57,8 +57,10 @@ None
 Changelog
 ---------
 
-**3.0.0**
+**3.0.1**
+- Update: Pull a Sessionz fix
 
+**3.0.0**
 - Update: Refactor to use Sessionz
 - Update: Add encryption at rest if `WP_SESSION_ENC_KEY` is set
 
@@ -139,6 +141,6 @@ Additional Information
 **Requires at least:** 4.7
 **Tested up to:** 4.9.1
 **Requires PHP:** 5.6
-**Stable tag:** 3.0
+**Stable tag:** 3.0.1
 **License:** GPLv2 or later
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html
