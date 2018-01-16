@@ -158,3 +158,14 @@ function wp_session_register_garbage_collection()
 {
     _doing_it_wrong('wp_session_register_garbage_collection', 'Sessions are cleaned up natively.', '3.0');
 }
+
+if ( ! class_exists('WP_Session') ) :
+class WP_Session {
+    public static function get_instance()
+    {
+        _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
+
+        return $_SESSION;
+    }
+}
+endif;
