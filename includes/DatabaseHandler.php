@@ -116,6 +116,10 @@ class DatabaseHandler extends SessionHandler {
             'session_expiry' => $expires
         ];
 
+        if (empty($data)) {
+            return $this->_delete($id);
+        }
+
         return $wpdb->replace("{$wpdb->prefix}sm_sessions", $session);
     }
 
@@ -128,17 +132,18 @@ class DatabaseHandler extends SessionHandler {
 	 *
 	 * @return string
 	 */
-	public function read( $id, $next ) {
-		$data = $this->_read( $id );
-		if ( false === $data ) {
-			$data = $next( $id );
-			if ( false !== $data ) {
-			    $this->_write($id, $data);
-			}
-		}
+    public function read($id, $next)
+    {
+        $data = $this->_read($id);
+        if (false === $data) {
+            $data = $next($id);
+            if (false !== $data) {
+                $this->_write($id, $data);
+            }
+        }
 
-		return $data;
-	}
+        return $data;
+    }
 
     /**
      * Get an item out of a WordPress option
@@ -149,9 +154,10 @@ class DatabaseHandler extends SessionHandler {
      *
      * @return bool|string
      */
-    protected function _read( $id ) {
+    protected function _read($id)
+    {
         global $wpdb;
-        $session_id = $this->sanitize( $id );
+        $session_id = $this->sanitize($id);
 
         $session = $wpdb->get_row(
             $wpdb->prepare(
@@ -161,11 +167,11 @@ class DatabaseHandler extends SessionHandler {
             ARRAY_A
         );
 
-        if ( $session === NULL ) {
+        if ($session === null) {
             return false;
         }
 
-        return $session['session_value'];
+        return $session[ 'session_value' ];
     }
 
     /**
@@ -174,17 +180,29 @@ class DatabaseHandler extends SessionHandler {
      * @param string   $id
      * @param callable $next
      *
-     * @global \wpdb $wpdb
-     *
      * @return mixed
      */
-    public function delete( $id, $next ) {
+    public function delete($id, $next)
+    {
+        $this->_delete($id);
+
+        return $next($id);
+    }
+
+    /**
+     * Delete a session from the database.
+     *
+     * @param string $id Session identifier
+     *
+     * @global \wpdb $wpdb
+     */
+    protected function _delete($id)
+    {
         global $wpdb;
+
         $session_id = $this->sanitize( $id );
 
-        $wpdb->delete( "{$wpdb->prefix}sm_sessions", array( 'session_key' => $session_id ) );
-
-        return $next( $id );
+        $wpdb->delete( "{$wpdb->prefix}sm_sessions", ['session_key' => $session_id]);
     }
 
     /**
@@ -197,7 +215,8 @@ class DatabaseHandler extends SessionHandler {
      *
      * @return mixed
      */
-    public function clean( $maxlifetime, $next ) {
+    public function clean($maxlifetime, $next)
+    {
         global $wpdb;
 
         $wpdb->query(
@@ -208,6 +227,6 @@ class DatabaseHandler extends SessionHandler {
             )
         );
 
-        return $next( $maxlifetime );
+        return $next($maxlifetime);
     }
 }
