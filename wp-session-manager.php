@@ -33,5 +33,5 @@ add_action('wp_session_init', ['EAMann\WPSession\DatabaseHandler', 'create_table
 
 // Start up session management, if we're not in the CLI
 if (!defined('WP_CLI') || false === WP_CLI) {
-    add_action('plugins_loaded', 'session_start');
+    add_action('plugins_loaded', 'session_start', 10, 0);
 }
