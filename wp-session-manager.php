@@ -25,6 +25,11 @@ if (defined('WP_SESSION_USE_OPTIONS') && WP_SESSION_USE_OPTIONS) {
 } else {
     $wp_session_handler->addHandler(new \EAMann\WPSession\DatabaseHandler());
 }
+
+if (defined('WP_SESSION_ENC_KEY') && WP_SESSION_ENC_KEY) {
+    $wp_session_handler->addHandler(new \EAMann\Sessionz\Handlers\EncryptionHandler(WP_SESSION_ENC_KEY));
+}
+
 $wp_session_handler->addHandler(new \EAMann\Sessionz\Handlers\MemoryHandler());
 
 // Create the required table.
