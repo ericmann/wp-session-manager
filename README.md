@@ -57,6 +57,9 @@ None
 Changelog
 ---------
 
+**3.0.2**
+- Fix: Add back in proper array access support for the deprecated `WP_Session` object.
+
 **3.0.1**
 - Update: Pull a Sessionz fix
 
@@ -141,6 +144,6 @@ Additional Information
 **Requires at least:** 4.7
 **Tested up to:** 4.9.1
 **Requires PHP:** 5.6
-**Stable tag:** 3.0.1
+**Stable tag:** 3.0.2
 **License:** GPLv2 or later
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html

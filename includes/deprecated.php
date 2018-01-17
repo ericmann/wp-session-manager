@@ -159,33 +159,41 @@ function wp_session_register_garbage_collection()
     _doing_it_wrong('wp_session_register_garbage_collection', 'Sessions are cleaned up natively.', '3.0');
 }
 
-if ( ! class_exists('WP_Session') ) : 
+if ( ! class_exists('WP_Session') ) :
 class WP_Session implements ArrayAccess {
     public static function get_instance()
-    {   
+    {
         _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
 
         return new WP_Session();
-    }   
+    }
 
     public function offsetExists($offset)
-    {   
+    {
+        _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
+
         return isset($_SESSION[$offset]);
-    }   
+    }
 
     public function offsetGet($offset)
-    {   
+    {
+        _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
+
         return $_SESSION[$offset];
-    }   
+    }
 
     public function offsetSet($offset, $value)
-    {   
+    {
+        _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
+
         $_SESSION[$offset] = $value;
-    }   
+    }
 
     public function offsetUnset($offset)
-    {   
+    {
+        _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
+
         unset($_SESSION[$offset]);
-    }   
+    }
 }
 endif;
