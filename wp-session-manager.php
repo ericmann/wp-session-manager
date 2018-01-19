@@ -3,7 +3,7 @@
  * Plugin Name: WP Session Manager
  * Plugin URI:  https://paypal.me/eam
  * Description: Session management for WordPress.
- * Version:     3.0.2
+ * Version:     3.0.3
  * Author:      Eric Mann
  * Author URI:  http://eamann.com
  * License:     GPLv2+
@@ -36,7 +36,17 @@ $wp_session_handler->addHandler(new \EAMann\Sessionz\Handlers\MemoryHandler());
 add_action('admin_init',      ['EAMann\WPSession\DatabaseHandler', 'create_table']);
 add_action('wp_session_init', ['EAMann\WPSession\DatabaseHandler', 'create_table']);
 
+/**
+ * If a session hasn't already been started by some external system, start one!
+ */
+function wp_session_manager_start_session()
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+}
+
 // Start up session management, if we're not in the CLI
 if (!defined('WP_CLI') || false === WP_CLI) {
-    add_action('plugins_loaded', 'session_start', 10, 0);
+    add_action('plugins_loaded', 'wp_session_manager_start_session', 10, 0);
 }

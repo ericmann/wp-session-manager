@@ -3,9 +3,9 @@ Contributors:      ericmann
 Donate link:       https://paypal.me/eam
 Tags:              session
 Requires at least: 4.7
-Tested up to:      4.9.1
+Tested up to:      4.9.2
 Requires PHP:      5.6
-Stable tag:        3.0.2
+Stable tag:        3.0.3
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,11 +35,11 @@ Session data stored in the database can be encrypted at rest for better security
 
 Merely use the superglobal `$_SESSION` array:
 
-```
+`
 $_SESSION['user_name'] = 'User Name';                            // A string
 $_SESSION['user_contact'] = array( 'email' => 'user@name.com' ); // An array
 $_SESSION['user_obj'] = new WP_User( 1 );                        // An object
-```
+`
 
 = How long do session variables live? =
 
@@ -50,15 +50,19 @@ for more details on configuration.
 
 Absolutely! As of version 2.0, this plugin will create a new table for WordPress to store session data. In general, this is more efficient long-term than using options for data storage. However, if your system does not allow creating a table, add the following to `wp-config.php` to use the options table instead:
 
-```
+`
 define( 'WP_SESSION_USE_OPTIONS', true );
-```
+`
 
 == Screenshots ==
 
 None
 
 == Changelog ==
+
+= 3.0.3 =
+* Fix: Repair code blocks in the readme
+* Fix: Use a more defensive approach to starting sessions in the event another plugin has started one already
 
 = 3.0.2 =
 * Fix: Add back in proper array access support for the deprecated `WP_Session` object.
