@@ -57,6 +57,9 @@ None
 Changelog
 ---------
 
+**3.0.4**
+- Update: Add support for the `wp_install` hook to create custom table immediately.
+
 **3.0.3**
 - Fix: Repair code blocks in the readme
 - Fix: Use a more defensive approach to starting sessions in the event another plugin has started one already
@@ -148,6 +151,6 @@ Additional Information
 **Requires at least:** 4.7
 **Tested up to:** 4.9.2
 **Requires PHP:** 5.6
-**Stable tag:** 3.0.3
+**Stable tag:** 3.0.4
 **License:** GPLv2 or later
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html

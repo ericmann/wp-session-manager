@@ -1,7 +1,7 @@
 {
 	"name"             : "ericmann/wp-session-manager",
 	"description"      : "Prototype session management for WordPress.",
-	"version"          : "3.0.3",
+	"version"          : "3.0.4",
 	"type"             : "wordpress-plugin",
 	"keywords"         : ["session"],
 	"homepage"         : "https://github.com/ericmann/wp-session-manager",
