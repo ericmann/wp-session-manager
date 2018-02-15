@@ -5,7 +5,7 @@
 	"type"             : "wordpress-plugin",
 	"keywords"         : ["session"],
 	"homepage"         : "https://github.com/ericmann/wp-session-manager",
-	"license"          : "GPLv2.0+",
+	"license"          : "GPL-2.0-or-later",
 	"minimum-stability": "dev",
 	"authors"          : [
 		{
