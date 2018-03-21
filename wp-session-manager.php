@@ -36,6 +36,7 @@ $wp_session_handler->addHandler(new \EAMann\Sessionz\Handlers\MemoryHandler());
 add_action('admin_init',      ['EAMann\WPSession\DatabaseHandler', 'create_table']);
 add_action('wp_session_init', ['EAMann\WPSession\DatabaseHandler', 'create_table']);
 add_action('wp_install',      ['EAMann\WPSession\DatabaseHandler', 'create_table']);
+register_activation_hook(__FILE__, ['EAMann\WPSession\DatabaseHandler', 'create_table']);
 
 /**
  * If a session hasn't already been started by some external system, start one!
