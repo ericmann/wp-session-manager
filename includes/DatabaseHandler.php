@@ -105,6 +105,10 @@ class DatabaseHandler extends SessionHandler {
     {
         global $wpdb;
 
+        if ($wpdb === null) {
+            return false;
+        }
+
         if ($expires === null) {
             $lifetime = (int) ini_get('session.gc_maxlifetime');
             $expires = time() + $lifetime;
@@ -159,6 +163,10 @@ class DatabaseHandler extends SessionHandler {
         global $wpdb;
         $session_id = $this->sanitize($id);
 
+        if ($wpdb === null) {
+            return false;
+        }
+
         $session = $wpdb->get_row(
             $wpdb->prepare(
                 "SELECT * FROM {$wpdb->prefix}sm_sessions WHERE session_key = %s",
@@ -202,7 +210,9 @@ class DatabaseHandler extends SessionHandler {
 
         $session_id = $this->sanitize( $id );
 
-        $wpdb->delete( "{$wpdb->prefix}sm_sessions", ['session_key' => $session_id]);
+        if ($wpdb !== null) {
+            $wpdb->delete( "{$wpdb->prefix}sm_sessions", ['session_key' => $session_id]);
+        }
     }
 
     /**
@@ -219,13 +229,15 @@ class DatabaseHandler extends SessionHandler {
     {
         global $wpdb;
 
-        $wpdb->query(
-            $wpdb->prepare(
-                "DELETE FROM {$wpdb->prefix}sm_sessions WHERE session_expiry < %s LIMIT %d",
-                time(),
-                1000
-            )
-        );
+        if ($wpdb !== null) {
+            $wpdb->query(
+                $wpdb->prepare(
+                    "DELETE FROM {$wpdb->prefix}sm_sessions WHERE session_expiry < %s LIMIT %d",
+                    time(),
+                    1000
+                )
+            );
+        }
 
         return $next($maxlifetime);
     }
