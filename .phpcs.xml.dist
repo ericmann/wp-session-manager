@@ -1,12 +1,14 @@
 <?xml version="1.0"?>
-<ruleset name="WordPress Coding Standards for Plugins">
-	<description>Generally-applicable sniffs for WordPress plugins</description>
+<ruleset name="PSR-1 and PSR-2 code sniffs">
+	<description>Generally-applicable sniffs for modern PHP development</description>
 
-	<rule ref="WordPress-Extra">
-	    <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
-	    <exclude name="WordPress.Files.FileName.InvalidClassFileName" />
-	</rule>
-	<rule ref="WordPress-Docs" />
+    <rule ref="PSR1">
+        <exclude name="PSR1.Files.SideEffects.FoundWithSymbols" />
+    </rule>
+    <rule ref="PSR2">
+        <exclude name="PSR2.Classes.PropertyDeclaration.Underscore" />
+    </rule>
+
 
 	<!-- Check all PHP files in directory tree by default. -->
 	<arg name="extensions" value="php"/>
@@ -18,5 +20,5 @@
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<exclude-pattern>*/tests/*</exclude-pattern>
 	<exclude-pattern>*/languages/*</exclude-pattern>
-	<exclude-pattern>*/deprecated.php</exclude-pattern>
+	<exclude-pattern>*/deprecatded.php</exclude-pattern>
 </ruleset>
