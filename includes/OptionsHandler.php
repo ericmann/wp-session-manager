@@ -14,9 +14,8 @@ namespace EAMann\WPSession;
 use EAMann\WPSession\Objects\Option;
 
 /**
- * Use an associative array to store session data so we can cut down on
- * round trips to an external storage mechanism (or just leverage an in-
- * memory cache for read performance).
+ * Use WordPress options (the legacy storage technique) to store data to avoid creating
+ * custom data structures in the database.
  */
 class OptionsHandler extends SessionHandler {
 
