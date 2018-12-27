@@ -1,5 +1,4 @@
-WP Session Manager
-==================
+# WP Session Manager [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
 Session management for WordPress.
 
@@ -163,3 +162,8 @@ Additional Information
 **Stable tag:** 4.0.0  
 **License:** GPLv2 or later  
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html
+
+[travis-image]: https://travis-ci.org/ericmann/wp-session-manager.svg?branch=master
+[travis-url]: https://travis-ci.org/ericmann/wp-session-manager
+[coveralls-image]: https://coveralls.io/repos/github/ericmann/wp-session-manager/badge.svg?branch=master
+[coveralls-url]: https://coveralls.io/github/ericmann/wp-session-manager?branch=master
