@@ -3,9 +3,9 @@ Contributors:      ericmann
 Donate link:       https://paypal.me/eam
 Tags:              session
 Requires at least: 4.7
-Tested up to:      4.9.2
-Requires PHP:      5.6
-Stable tag:        3.0.4
+Tested up to:      5.0.2
+Requires PHP:      7.1
+Stable tag:        4.0.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -59,6 +59,12 @@ define( 'WP_SESSION_USE_OPTIONS', true );
 None
 
 == Changelog ==
+
+= 4.0.0 =
+* New: Add an object cache based handler to leverage Redis or Memcached if available for faster queries.
+* Update: Bump minimum PHP requirements due to out-of-date version deprecations.
+* Fix: Correct a race condition where a session was created before the database table existed.
+* Fix: Correct a race condition where the `$wpdb` global is not yet set when a session is deleted from the database.
 
 = 3.0.4 =
 * Update: Add support for the `wp_install` hook to create custom table immediately.
@@ -123,6 +129,9 @@ None
 * First version
 
 == Upgrade Notice ==
+
+= 4.0 =
+This version requires PHP 7.1 or higher.
 
 = 3.0 =
 This version requires PHP 5.6 or higher and uses Composer-powered autoloading to incorporate Sessionz for transparent session management.

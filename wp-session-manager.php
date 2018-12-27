@@ -3,9 +3,9 @@
  * Plugin Name: WP Session Manager
  * Plugin URI:  https://paypal.me/eam
  * Description: Session management for WordPress.
- * Version:     3.0.4
+ * Version:     4.0.0
  * Author:      Eric Mann
- * Author URI:  http://eamann.com
+ * Author URI:  https://eamann.com
  * License:     GPLv2+
  */
 
