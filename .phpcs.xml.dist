@@ -2,7 +2,10 @@
 <ruleset name="WordPress Coding Standards for Plugins">
 	<description>Generally-applicable sniffs for WordPress plugins</description>
 
-	<rule ref="WordPress-Extra" />
+	<rule ref="WordPress-Extra">
+	    <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
+	    <exclude name="WordPress.Files.FileName.InvalidClassFileName" />
+	</rule>
 	<rule ref="WordPress-Docs" />
 
 	<!-- Check all PHP files in directory tree by default. -->
@@ -15,4 +18,5 @@
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<exclude-pattern>*/tests/*</exclude-pattern>
 	<exclude-pattern>*/languages/*</exclude-pattern>
+	<exclude-pattern>*/deprecated.php</exclude-pattern>
 </ruleset>

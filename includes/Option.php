@@ -9,10 +9,12 @@
  * @subpackage Objects
  * @since 3.0
  */
+
 namespace EAMann\WPSession\Objects;
 
 /**
  * Class Option
+ *
  * @package EAMann\WPSession\Objects
  *
  * @property-read string $data Data enclosed by the item
@@ -20,68 +22,81 @@ namespace EAMann\WPSession\Objects;
  */
 class Option {
 	/**
+	 * Serialized data contained by the option.
+	 *
 	 * @var string
 	 */
 	protected $_data;
 
 	/**
+	 * Timestamp when the option was created.
+	 *
 	 * @var int
 	 */
 	protected $_time;
 
-    /**
-     * @var int
-     */
+	/**
+	 * Timestamp when the option expires.
+	 *
+	 * @var int
+	 */
 	protected $_expires;
 
-	public function __construct($data, $time = null)
-	{
+	/**
+	 * Option constructor.
+	 *
+	 * @param string   $data Serialized data contained by the option.
+	 * @param int|null $time Optional timestamp for option creation.
+	 */
+	public function __construct( $data, $time = null ) {
 		$this->_data = $data;
 		$this->_time = null === $time ? time() : (int) $time;
 
-        $lifetime = (int) ini_get('session.gc_maxlifetime');
+		$lifetime       = (int) ini_get( 'session.gc_maxlifetime' );
 		$this->_expires = $this->_time + $lifetime;
 	}
 
 	/**
 	 * Magic getter to allow read-only properties
 	 *
-	 * @param string $field
+	 * @param string $field Name of the field to retrieve.
 	 *
 	 * @return mixed
 	 */
-	public function __get($field)
-	{
+	public function __get( $field ) {
 		$field_name = "_$field";
 
-		return isset($this->$field_name) ? $this->$field_name : null;
+		return isset( $this->$field_name ) ? $this->$field_name : null;
 	}
 
 	/**
 	 * Throw an exception when anyone tries to write anything.
 	 *
-	 * @param string $field
-	 * @param mixed  $value
+	 * @param string $field Name of the field to set.
+	 * @param mixed  $value Value to store.
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws \InvalidArgumentException Options in this context are read-only and will throw if any attempts are made to write.
 	 */
-	public function __set($field, $value)
-	{
-		throw new \InvalidArgumentException("Field `$field` is read-only!");
+	public function __set( $field, $value ) {
+		throw new \InvalidArgumentException( "Field `$field` is read-only!" );
 	}
 
 	/**
 	 * Test whether an item is still valid
 	 *
-	 * @param int [$lifetime]
-	 * @param int [$now]
+	 * @param int $lifetime Number of seconds for which the option is valid.
+	 * @param int $now      Integer timestamp.
 	 *
 	 * @return bool
 	 */
-	public function is_valid($lifetime = null, $now = null)
-	{
-		if (null === $now) $now = time();
-		if (null === $lifetime) $lifetime = ini_get('session.gc_maxlifetime');
+	public function is_valid( $lifetime = null, $now = null ) {
+		if ( null === $now ) {
+			$now = time();
+		}
+
+		if ( null === $lifetime ) {
+			$lifetime = ini_get( 'session.gc_maxlifetime' );
+		}
 
 		return (int) $now - $this->_time < (int) $lifetime;
 	}
