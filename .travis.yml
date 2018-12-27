@@ -24,6 +24,10 @@ matrix:
       env: WP_TRAVISCI=phpcs
   allow_failures:
     - php: 7.3
+      env: WP_VERSION=latest
+    - php: 7.2
+      env: WP_VERSION=latest
+    - php: 7.3
       env: WP_TRAVISCI=phpcs
 
 before_script:
