@@ -24,6 +24,11 @@ matrix:
       env: WP_VERSION=latest
     - php: 7.1
       env: WP_VERSION=latest
+    - php: 7.3
+      env: WP_TRAVISCI=phpcs
+  allow_failures:
+    - php: 7.3
+      env: WP_TRAVISCI=phpcs
 
 before_script:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
@@ -54,3 +59,6 @@ script:
     if [[ "$WP_TRAVISCI" == "phpcs" ]] ; then
       phpcs
     fi
+
+after_success:
+  - travis_retry php vendor/bin/php-coveralls

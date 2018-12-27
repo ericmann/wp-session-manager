@@ -15,7 +15,9 @@
 			"role"    : "Developer"
 		}
 	],
-	"require-dev"      : {},
+	"require-dev"      : {
+		"php-coveralls/php-coveralls": "^2.1"
+	},
 	"require"          : {
 		"php": ">=7.1",
 		"ericmann/sessionz": "^0.3"
