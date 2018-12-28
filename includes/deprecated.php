@@ -12,7 +12,7 @@
  *
  * @return int
  */
-function wp_session_cache_expire()
+function wp_session_cache_expire(): int
 {
     _doing_it_wrong('wp_session_cache_expire', 'Please use native Session functionality: session_cache_expire', '3.0');
 
@@ -40,7 +40,7 @@ function wp_session_commit()
  *
  * @return bool
  */
-function wp_session_decode($data)
+function wp_session_decode(string $data)
 {
     _doing_it_wrong('wp_session_decode', 'Please use native Session functionality: session_decode', '3.0');
 
@@ -54,7 +54,7 @@ function wp_session_decode($data)
  *
  * @return string
  */
-function wp_session_encode()
+function wp_session_encode(): string
 {
     _doing_it_wrong('wp_session_encode', 'Please use native Session functionality: session_encode', '3.0');
 
@@ -70,7 +70,7 @@ function wp_session_encode()
  *
  * @return bool
  */
-function wp_session_regenerate_id($delete_old_session = false)
+function wp_session_regenerate_id(bool $delete_old_session = false): int
 {
     _doing_it_wrong(
         'wp_session_regenerate_id',
@@ -90,7 +90,7 @@ function wp_session_regenerate_id($delete_old_session = false)
  *
  * @return bool
  */
-function wp_session_start()
+function wp_session_start(): bool
 {
     _doing_it_wrong('wp_session_start', 'Please use native Session functionality: session_start', '3.0');
 
@@ -106,7 +106,7 @@ function wp_session_start()
  *
  * @return int
  */
-function wp_session_status()
+function wp_session_status(): int
 {
     _doing_it_wrong('wp_session_status', 'Please use native Session functionality: session_status', '3.0');
 
@@ -166,7 +166,7 @@ function wp_session_register_garbage_collection()
 if (!class_exists('WP_Session')) :
     class WP_Session implements ArrayAccess
     {
-        public static function get_instance()
+        public static function get_instance(): WP_Session
         {
             _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
 

@@ -64,8 +64,8 @@ class DatabaseHandler extends SessionHandler
     /**
      * Pass things through to the next middleware. This function is a no-op.
      *
-     * @param string $path Path where the storage lives.
-     * @param string $name Name of the session store to create.
+     * @param string   $path Path where the storage lives.
+     * @param string   $name Name of the session store to create.
      * @param callable $next Next create operation in the stack.
      *
      * @return mixed
@@ -79,31 +79,31 @@ class DatabaseHandler extends SessionHandler
      * Store the item in the database and then pass the data, unchanged, down
      * the middleware stack.
      *
-     * @param string $id ID of the data to store.
-     * @param string $data Actual data to store.
+     * @param string   $key  Key of the data to store.
+     * @param string   $data Actual data to store.
      * @param callable $next Next write operation in the stack.
      *
      * @return mixed
      */
-    public function write($id, $data, $next)
+    public function write($key, $data, $next)
     {
-        $this->directWrite($id, $data);
+        $this->directWrite($key, $data);
 
-        return $next($id, $data);
+        return $next($key, $data);
     }
 
     /**
      * Actually write the data to the WordPress database.
      *
-     * @param string $id ID of the session to write.
-     * @param string $data Serialized data to write.
-     * @param int $expires Timestamp (in seconds from now) when the session expires.
+     * @param string $key     Key of the session to write.
+     * @param string $data    Serialized data to write.
+     * @param int    $expires Timestamp (in seconds from now) when the session expires.
      *
      * @global \wpdb $wpdb
      *
      * @return bool|int false if the row could not be inserted or the number of affected rows (which will always be 1).
      */
-    protected function directWrite($id, $data, $expires = null)
+    protected function directWrite(string $key, string $data, ?int $expires = null)
     {
         global $wpdb;
 
@@ -112,18 +112,18 @@ class DatabaseHandler extends SessionHandler
         }
 
         if (null === $expires) {
-            $lifetime = (int)ini_get('session.gc_maxlifetime');
+            $lifetime = (int) ini_get('session.gc_maxlifetime');
             $expires = time() + $lifetime;
         }
 
         $session = [
-            'session_key' => $this->sanitize($id),
-            'session_value' => $data,
+            'session_key'    => $this->sanitize($key),
+            'session_value'  => $data,
             'session_expiry' => $expires,
         ];
 
         if (empty($data)) {
-            return $this->directDelete($id);
+            return $this->directDelete($key);
         }
 
         return $wpdb->replace("{$wpdb->prefix}sm_sessions", $session);
@@ -133,18 +133,18 @@ class DatabaseHandler extends SessionHandler
      * Grab the item from the database if it exists, otherwise delve deeper
      * into the stack and retrieve from another underlying middlware.
      *
-     * @param string $id ID of the session to read.
+     * @param string   $key  Key of the session to read.
      * @param callable $next Next read operation in the stack.
      *
      * @return string
      */
-    public function read($id, $next)
+    public function read($key, $next)
     {
-        $data = $this->directRead($id);
+        $data = $this->directRead($key);
         if (false === $data) {
-            $data = $next($id);
+            $data = $next($key);
             if (false !== $data) {
-                $this->directWrite($id, $data);
+                $this->directWrite($key, $data);
             }
         }
 
@@ -154,16 +154,16 @@ class DatabaseHandler extends SessionHandler
     /**
      * Get an item out of a WordPress option
      *
-     * @param string $id ID of the session to read.
+     * @param string $key Key of the session to read.
      *
      * @global \wpdb $wpdb
      *
      * @return bool|string
      */
-    protected function directRead($id)
+    protected function directRead(string $key)
     {
         global $wpdb;
-        $session_id = $this->sanitize($id);
+        $session_key = $this->sanitize($key);
 
         if (null === $wpdb) {
             return false;
@@ -172,7 +172,7 @@ class DatabaseHandler extends SessionHandler
         $session = $wpdb->get_row(
             $wpdb->prepare(
                 "SELECT * FROM {$wpdb->prefix}sm_sessions WHERE session_key = %s",
-                $session_id
+                $session_key
             ),
             ARRAY_A
         );
@@ -187,33 +187,33 @@ class DatabaseHandler extends SessionHandler
     /**
      * Purge an item from the database immediately.
      *
-     * @param string $id ID of the session to purge.
+     * @param string   $key  Key of the session to purge.
      * @param callable $next Next delete operation in the stack.
      *
      * @return mixed
      */
-    public function delete($id, $next)
+    public function delete($key, $next)
     {
-        $this->directDelete($id);
+        $this->directDelete($key);
 
-        return $next($id);
+        return $next($key);
     }
 
     /**
      * Delete a session from the database.
      *
-     * @param string $id Session identifier.
+     * @param string $key Session identifier.
      *
      * @global \wpdb $wpdb
      */
-    protected function directDelete($id)
+    protected function directDelete(string $key)
     {
         global $wpdb;
 
-        $session_id = $this->sanitize($id);
+        $session_key = $this->sanitize($key);
 
         if (null !== $wpdb) {
-            $wpdb->delete("{$wpdb->prefix}sm_sessions", ['session_key' => $session_id]);
+            $wpdb->delete("{$wpdb->prefix}sm_sessions", ['session_key' => $session_key]);
         }
     }
 

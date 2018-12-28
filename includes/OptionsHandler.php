@@ -24,8 +24,8 @@ class OptionsHandler extends SessionHandler
     /**
      * Pass things through to the next middleware. This function is a no-op.
      *
-     * @param string $path Path where the storage lives.
-     * @param string $name Name of the session store to create.
+     * @param string   $path Path where the storage lives.
+     * @param string   $name Name of the session store to create.
      * @param callable $next Next create operation in the stack.
      *
      * @return mixed
@@ -39,41 +39,41 @@ class OptionsHandler extends SessionHandler
      * Store the item in the database and then pass the data, unchanged, down
      * the middleware stack.
      *
-     * @param string $id Session identifier.
-     * @param string $data Serialized session data.
+     * @param string   $key  Session identifier.
+     * @param string   $data Serialized session data.
      * @param callable $next Next write operation in the stack.
      *
      * @return mixed
      */
-    public function write($id, $data, $next)
+    public function write($key, $data, $next)
     {
         $item = new Option($data);
-        $session_id = $this->sanitize($id);
-        add_option("_wp_session_{$session_id}", $item->data, '', 'no');
-        add_option("_wp_session_expires_{$session_id}", $item->time, '', 'no');
+        $session_key = $this->sanitize($key);
+        add_option("_wp_session_${session_key}", $item->data, '', 'no');
+        add_option("_wp_session_expires_${session_key}", $item->time, '', 'no');
 
-        return $next($id, $data);
+        return $next($key, $data);
     }
 
     /**
      * Grab the item from the database if it exists, otherwise delve deeper
      * into the stack and retrieve from another underlying middleware.
      *
-     * @param string $id Session identifier.
+     * @param string   $key  Session identifier.
      * @param callable $next Next read operation in the stack, might not be needed.
      *
      * @return string
      */
-    public function read($id, $next)
+    public function read($key, $next)
     {
-        $data = $this->directRead($id);
+        $data = $this->directRead($key);
         if (false === $data) {
-            $data = $next($id);
+            $data = $next($key);
             if (false !== $data) {
                 $item = new Option($data);
-                $session_id = $this->sanitize($id);
-                add_option("_wp_session_{$session_id}", $item->data, '', 'no');
-                add_option("_wp_session_expires_{$session_id}", $item->time, '', 'no');
+                $session_key = $this->sanitize($key);
+                add_option("_wp_session_${session_key}", $item->data, '', 'no');
+                add_option("_wp_session_expires_${session_key}", $item->time, '', 'no');
             }
         }
 
@@ -83,20 +83,20 @@ class OptionsHandler extends SessionHandler
     /**
      * Get an item out of a WordPress option
      *
-     * @param string $id Session identifier.
+     * @param string $key Session identifier.
      *
      * @return bool|string
      */
-    protected function directRead($id)
+    protected function directRead(string $key)
     {
-        $session_id = $this->sanitize($id);
+        $session_key = $this->sanitize($key);
 
-        $data = get_option("_wp_session_$session_id");
-        $expires = intval(get_option("_wp_session_expires_$session_id"));
+        $data = get_option("_wp_session_${session_key}");
+        $expires = intval(get_option("_wp_session_expires_${session_key}"));
         if (false !== $data) {
             $item = new Option($data, $expires);
             if (!$item->isValid()) {
-                $this->directDelete($session_id);
+                $this->directDelete($session_key);
 
                 return false;
             }
@@ -110,36 +110,36 @@ class OptionsHandler extends SessionHandler
     /**
      * Purge an item from the database immediately.
      *
-     * @param string $id Session identifier.
+     * @param string   $key  Session identifier.
      * @param callable $next Next delete operation in the stack.
      *
      * @return mixed
      */
-    public function delete($id, $next)
+    public function delete($key, $next)
     {
-        $session_id = $this->sanitize($id);
+        $session_key = $this->sanitize($key);
 
-        $this->directDelete($session_id);
+        $this->directDelete($session_key);
 
-        return $next($id);
+        return $next($key);
     }
 
     /**
      * Delete a cached session value from the options table.
      *
-     * @param string $id Session identifier.
+     * @param string $key Session identifier.
      */
-    protected function directDelete($id)
+    protected function directDelete(string $key)
     {
-        delete_option("_wp_session_$id");
-        delete_option("_wp_session_expires_$id");
+        delete_option("_wp_session_${key}");
+        delete_option("_wp_session_expires_${key}");
     }
 
     /**
      * Update the Options table by removing any items that are no longer valid.
      *
-     * @param int $maxlifetime Maximum number of seconds for which a session can live.
-     * @param callable $next Next clean operation in the stack.
+     * @param int      $maxlifetime Maximum number of seconds for which a session can live.
+     * @param callable $next        Next clean operation in the stack.
      *
      * @global \wpdb $wpdb
      *
@@ -179,7 +179,7 @@ WHERE option_name LIKE %s AND option_value > %d ORDER BY option_value LIMIT 0, 1
      *
      * @return int Sessions deleted.
      */
-    public static function deleteAll()
+    public static function deleteAll(): int
     {
         global $wpdb;
 

@@ -49,12 +49,12 @@ class Option
      * @param string $data Serialized data contained by the option.
      * @param int|null $time Optional timestamp for option creation.
      */
-    public function __construct($data, $time = null)
+    public function __construct(string $data, ?int $time = null)
     {
         $this->_data = $data;
-        $this->_time = null === $time ? time() : (int)$time;
+        $this->_time = null === $time ? time() : intval($time);
 
-        $lifetime = (int)ini_get('session.gc_maxlifetime');
+        $lifetime = intval(ini_get('session.gc_maxlifetime'));
         $this->_expires = $this->_time + $lifetime;
     }
 
@@ -65,7 +65,7 @@ class Option
      *
      * @return mixed
      */
-    public function __get($field)
+    public function __get(string $field)
     {
         $field_name = "_$field";
 

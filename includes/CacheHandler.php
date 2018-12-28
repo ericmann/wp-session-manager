@@ -23,9 +23,9 @@ class CacheHandler extends SessionHandler
      *
      * @return int
      */
-    private function getExpiration()
+    private function getExpiration(): int
     {
-        $expires = ini_get('session.gc_maxlifetime');
+        $expires = intval(ini_get('session.gc_maxlifetime'));
 
         /**
          * Filter the number of seconds until a cached session value should be removed
@@ -39,8 +39,8 @@ class CacheHandler extends SessionHandler
     /**
      * Pass things through to the next middleware. This function is a no-op.
      *
-     * @param string $path Path where the storage lives.
-     * @param string $name Name of the session store to create.
+     * @param string   $path Path where the storage lives.
+     * @param string   $name Name of the session store to create.
      * @param callable $next Next create operation in the stack.
      *
      * @return mixed
@@ -54,39 +54,39 @@ class CacheHandler extends SessionHandler
      * Store the item in the cache and then pass the data, unchanged, down
      * the middleware stack.
      *
-     * @param string $id Session identifier.
-     * @param string $data Serialized session data.
+     * @param string   $key  Session identifier.
+     * @param string   $data Serialized session data.
      * @param callable $next Next write operation in the stack.
      *
      * @return mixed
      */
-    public function write($id, $data, $next)
+    public function write($key, $data, $next)
     {
-        $session_id = $this->sanitize($id);
+        $session_key = $this->sanitize($key);
 
-        wp_cache_set("session_$session_id", $data, 'sessions', $this->getExpiration());
+        wp_cache_set("session_${session_key}", $data, 'sessions', $this->getExpiration());
 
-        return $next($id, $data);
+        return $next($key, $data);
     }
 
     /**
      * Grab the item from the cache if it exists, otherwise delve deeper
      * into the stack and retrieve from another underlying middleware.
      *
-     * @param string $id Session identifier.
+     * @param string   $key  Session identifier.
      * @param callable $next Next read operation in the stack, might not be needed.
      *
      * @return string
      */
-    public function read($id, $next)
+    public function read($key, $next)
     {
-        $session_id = $this->sanitize($id);
+        $session_key = $this->sanitize($key);
 
-        $data = wp_cache_get("session_$session_id", 'sessions');
+        $data = wp_cache_get("session_${session_key}", 'sessions');
         if (false === $data) {
-            $data = $next($id);
+            $data = $next($key);
             if (false !== $data) {
-                wp_cache_set("session_$session_id", $data, 'sessions', $this->getExpiration());
+                wp_cache_set("session_${session_key}", $data, 'sessions', $this->getExpiration());
             }
         }
 
@@ -96,25 +96,25 @@ class CacheHandler extends SessionHandler
     /**
      * Purge an item from the cache immediately.
      *
-     * @param string $id Session identifier.
+     * @param string   $key  Session identifier.
      * @param callable $next Next delete operation in the stack.
      *
      * @return mixed
      */
-    public function delete($id, $next)
+    public function delete($key, $next)
     {
-        $session_id = $this->sanitize($id);
+        $session_key = $this->sanitize($key);
 
-        wp_cache_delete("session_$session_id", 'sessions');
+        wp_cache_delete("session_${session_key}", 'sessions');
 
-        return $next($id);
+        return $next($key);
     }
 
     /**
      * We expect the external cache to expire items on its own, so this is a noop.
      *
-     * @param int $maxlifetime Maximum number of seconds for which a session can live.
-     * @param callable $next Next clean operation in the stack.
+     * @param int      $maxlifetime Maximum number of seconds for which a session can live.
+     * @param callable $next        Next clean operation in the stack.
      *
      * @return mixed
      */
