@@ -82,7 +82,7 @@ class CacheHandler extends SessionHandler
     {
         $session_id = $this->sanitize($id);
 
-        $data = wp_cache_get("session_$session_id", 'sessions');
+        $data = wp_cache_get("session_${session_id}", 'sessions');
         if (false === $data) {
             $data = $next($id);
             if (false !== $data) {
