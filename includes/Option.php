@@ -46,10 +46,10 @@ class Option
     /**
      * Option constructor.
      *
-     * @param string $data Serialized data contained by the option.
+     * @param mixed $data Serialized data contained by the option.
      * @param int|null $time Optional timestamp for option creation.
      */
-    public function __construct(string $data, ?int $time = null)
+    public function __construct($data, ?int $time = null)
     {
         $this->_data = $data;
         $this->_time = null === $time ? time() : intval($time);
