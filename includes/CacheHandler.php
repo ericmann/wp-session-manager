@@ -76,7 +76,7 @@ class CacheHandler extends SessionHandler
      * @param string   $key  Session identifier.
      * @param callable $next Next read operation in the stack, might not be needed.
      *
-     * @return string
+     * @return mixed
      */
     public function read($key, $next)
     {
@@ -84,6 +84,7 @@ class CacheHandler extends SessionHandler
 
         $data = wp_cache_get("session_${session_key}", 'sessions');
         if (false === $data) {
+            // Passing the key unsanitized to the next handler to avoid weirdness.
             $data = $next($key);
             if (false !== $data) {
                 wp_cache_set("session_${session_key}", $data, 'sessions', $this->getExpiration());

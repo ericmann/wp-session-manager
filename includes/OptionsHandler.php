@@ -68,6 +68,7 @@ class OptionsHandler extends SessionHandler
     {
         $data = $this->directRead($key);
         if (false === $data) {
+            // Passing the key unsanitized to the next handler to avoid weirdness.
             $data = $next($key);
             if (false !== $data) {
                 $item = new Option($data);
