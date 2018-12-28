@@ -15,7 +15,6 @@
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">include</directory>
-            <file>wp-session-manager.php</file>
         </whitelist>
     </filter>
     <php>
