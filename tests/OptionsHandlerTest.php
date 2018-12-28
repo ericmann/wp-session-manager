@@ -3,35 +3,31 @@
 namespace EAMann\WPSession;
 
 use PHPUnit\Framework\TestCase;
+use EAMann\WPSession\Objects\Option;
 
 // Mocks of global WordPress functions, within our namespace, so we can fall back.
 
-function apply_filters($filter, ...$args)
+function add_option($name, $data, $deprecated = '', $autoload = 'no')
 {
-    return $args[0];
+    return OptionsHandlerTest::add_option($name, $data, $deprecated, $autoload);
 }
 
-function wp_cache_set($id, $value, $group, $expires)
+function get_option($name, $default = false)
 {
-    return CacheHandlerTest::wp_cache_set($id, $value, $group, $expires);
+    return OptionsHandlerTest::get_option($name, $default);
 }
 
-function wp_cache_get($id, $group, $default = false)
+function delete_option($name)
 {
-    return CacheHandlerTest::wp_cache_get($id, $group, $default);
+    return OptionsHandlerTest::delete_option($name);
 }
 
-function wp_cache_delete($id, $group)
-{
-    return CacheHandlerTest::wp_cache_delete($id, $group);
-}
-
-class CacheHandlerTest extends TestCase
+class OptionsHandlerTest extends TestCase
 {
     /**
      * @var callable
      */
-    protected static $set_handler;
+    protected static $add_handler;
 
     /**
      * @var callable
@@ -43,39 +39,39 @@ class CacheHandlerTest extends TestCase
      */
     protected static $delete_handler;
 
-    public static function wp_cache_set($id, $value, $group, $expires)
+    public static function add_option($name, $data, $deprecated = '', $autoload = 'no')
     {
-        if (is_callable(self::$set_handler)) {
-            $handler = self::$set_handler;
-            return $handler($id, $value, $group, $expires);
+        if (is_callable(self::$add_handler)) {
+            $handler = self::$add_handler;
+            return $handler($name, $data, $deprecated, $autoload);
         }
 
         return false;
     }
 
-    public static function wp_cache_get($id, $group, $default = false)
+    public static function get_option($name, $default = false)
     {
         if (is_callable(self::$get_handler)) {
             $handler = self::$get_handler;
-            return $handler($id, $group, $default);
+            return $handler($name, $default);
         }
 
         return $default;
     }
 
-    public static function wp_cache_delete($id, $group)
+    public static function delete_option($name)
     {
         if (is_callable(self::$delete_handler)) {
             $handler = self::$delete_handler;
-            return $handler($id, $group);
+            return $handler($name);
         }
 
-        return false;
+        return true;
     }
 
     public function test_create()
     {
-        $handler = new CacheHandler();
+        $handler = new OptionsHandler();
 
         $called = false;
         $callback = function($path, $name) use (&$called) {
@@ -92,7 +88,7 @@ class CacheHandlerTest extends TestCase
 
     public function test_write()
     {
-        $handler = new CacheHandler();
+        $handler = new OptionsHandler();
 
         $called = false;
         $callback = function($id, $data) use (&$called) {
@@ -102,7 +98,7 @@ class CacheHandlerTest extends TestCase
             $called = true;
         };
 
-        self::$set_handler = function($id, $value, $group, $expires) {
+        self::$add_handler = function() {
             return true;
         };
 
@@ -113,24 +109,30 @@ class CacheHandlerTest extends TestCase
 
     public function test_hot_read()
     {
-        $handler = new CacheHandler();
+        $handler = new OptionsHandler();
 
-        self::$get_handler = function($id, $group) {
-            return 'cached|data';
+        self::$get_handler = function($name) {
+            switch($name) {
+                case '_wp_session_id':
+                    return new Option('cached|data', time());;
+                case '_wp_session_expires_id':
+                    return time() + 500;
+            }
         };
 
-        $this->assertEquals('cached|data', $handler->read('id', null));
+        $option = $handler->read('id', null);
+        $this->assertEquals('cached|data', $option->data);
     }
 
     public function test_cold_read()
     {
-        $handler = new CacheHandler();
+        $handler = new OptionsHandler();
 
         self::$get_handler = function() {
             return false;
         };
         $set_called = false;
-        self::$set_handler = function($id, $value, $group, $expires) use (&$set_called) {
+        self::$add_handler = function($name, $value) use (&$set_called) {
             $set_called = true;
             return true;
         };
@@ -150,7 +152,7 @@ class CacheHandlerTest extends TestCase
 
     public function test_delete()
     {
-        $handler = new CacheHandler();
+        $handler = new OptionsHandler();
 
         $called = false;
         $callback = function($id) use (&$called) {
@@ -173,7 +175,22 @@ class CacheHandlerTest extends TestCase
 
     public function test_clean()
     {
-        $handler = new CacheHandler();
+        global $wpdb;
+        $oldWPdb = $wpdb;
+
+        $wpdb = new class {
+            public function prepare($statement, ...$args)
+            {
+                return $statement;
+            }
+
+            public function get_results($query)
+            {
+                return [];
+            }
+        };
+
+        $handler = new OptionsHandler();
 
         $called = false;
         $callback = function() use (&$called) {
@@ -185,5 +202,7 @@ class CacheHandlerTest extends TestCase
 
         $this->assertTrue($called);
         $this->assertTrue($clean);
+
+        $wpdb = $oldWPdb;
     }
 }
