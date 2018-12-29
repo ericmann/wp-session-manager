@@ -24,41 +24,70 @@ class DatabaseHandler extends SessionHandler
      * before trying to use it.
      *
      * @see https://github.com/ericmann/wp-session-manager/issues/55
+     *
+     * @return bool|\WP_Error True if the table exists, False if using options, Error if failed.
      */
     public static function createTable()
     {
         if (defined('WP_SESSION_USE_OPTIONS') && WP_SESSION_USE_OPTIONS) {
-            return;
+            return false;
         }
 
-        $current_db_version = '0.1';
+        $current_db_version = '0.2';
         $created_db_version = get_option('sm_session_db_version', '0.0');
 
-        if (version_compare($created_db_version, $current_db_version, '<')) {
-            global $wpdb;
-
-            $collate = '';
-            if ($wpdb->has_cap('collation')) {
-                $collate = $wpdb->get_charset_collate();
-            }
-
-            $table = "CREATE TABLE {$wpdb->prefix}sm_sessions (
-                session_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-                session_key char(32) NOT NULL,
-                session_value LONGTEXT NOT NULL,
-                session_expiry BIGINT(20) UNSIGNED NOT NULL,
-                PRIMARY KEY  (session_key),
-                UNIQUE KEY session_id (session_id)
-            ) $collate;";
-
-            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-            dbDelta($table);
-
-            add_option('sm_session_db_version', '0.1', '', 'no');
-
-            // Nuke any legacy sessions from the options table.
-            OptionsHandler::deleteAll();
+        // If we're up-to-date, don't run the update
+        if ($created_db_version === $current_db_version) {
+            return true;
         }
+
+        global $wpdb;
+
+        $collate = '';
+        if ($wpdb->has_cap('collation')) {
+            $collate = $wpdb->get_charset_collate();
+        }
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        require_once ABSPATH . 'wp-admin/install-helper.php';
+
+        switch ($created_db_version) {
+            case '0.1':
+                $dropped = maybe_drop_column(
+                    "{$wpdb->prefix}sm_sessions",
+                    'session_id',
+                    "ALTER TABLE {$wpdb->prefix}sm_sessions DROP COLUMN session_id;"
+                );
+
+                if (! $dropped) {
+                    return new \WP_Error('Unable to update session tables!');
+                }
+
+                update_option('sm_session_db_version', '0.2');
+                break;
+            case '0.0':
+            default:
+                $created = maybe_create_table(
+                    "{$wpdb->prefix}sm_sessions",
+                    "CREATE TABLE {$wpdb->prefix}sm_sessions (
+                        session_key char(32) NOT NULL,
+                        session_value LONGTEXT NOT NULL,
+                        session_expiry BIGINT(20) UNSIGNED NOT NULL,
+                        PRIMARY KEY  (session_key)
+                    ) $collate;"
+                );
+
+                if (! $created) {
+                    return new \WP_Error('Unable to create session tables!');
+                }
+
+                add_option('sm_session_db_version', '0.2', '', 'no');
+
+                // Nuke any legacy sessions from the options table.
+                OptionsHandler::deleteAll();
+        }
+
+        return true;
     }
 
     /**

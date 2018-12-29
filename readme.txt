@@ -65,6 +65,7 @@ None
 * Update: Bump minimum PHP requirements due to out-of-date version deprecations.
 * Fix: Correct a race condition where a session was created before the database table existed.
 * Fix: Correct a race condition where the `$wpdb` global is not yet set when a session is deleted from the database.
+* Fix: Remove unnecessary integer session ID from the stored data table.
 
 = 3.0.4 =
 * Update: Add support for the `wp_install` hook to create custom table immediately.

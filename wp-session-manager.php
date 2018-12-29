@@ -54,9 +54,9 @@ register_activation_hook(__FILE__, ['EAMann\WPSession\DatabaseHandler', 'createT
  */
 function wp_session_manager_start_session()
 {
-    \EAMann\WPSession\DatabaseHandler::createTable();
+    $bootstrap = \EAMann\WPSession\DatabaseHandler::createTable();
 
-    if (session_status() !== PHP_SESSION_ACTIVE) {
+    if (! is_wp_error($bootstrap) && session_status() !== PHP_SESSION_ACTIVE) {
         session_start();
     }
 }

@@ -165,9 +165,9 @@ WHERE option_name LIKE %s AND option_value > %d ORDER BY option_value LIMIT 0, 1
 
         foreach ($keys as $expiration) {
             $key = $expiration->option_name;
-            $session_id = $this->sanitize(substr($key, 20));
+            $session_key = $this->sanitize(substr($key, 20));
 
-            $this->directDelete($session_id);
+            $this->directDelete($session_key);
         }
 
         return $next($maxlifetime);
