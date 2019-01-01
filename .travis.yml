@@ -1,0 +1,26 @@
+language: php
+
+matrix:
+  include:
+    - php: 7.3
+    - php: 7.2
+    - php: 7.1
+    - php: 7.3
+      env: TRAVISCI=phpcs
+  allow_failures:
+    - php: 7.3
+      env: TRAVISCI=phpcs
+
+install:
+  - composer install --dev --no-interaction
+
+script:
+  - mkdir -p build/logs
+  - php vendor/bin/phpunit -c phpunit.xml.dist
+  - |
+    if [[ "$TRAVISCI" == "phpcs" ]] ; then
+      php vendor/bin/phpcs
+    fi
+
+after_success:
+  - travis_retry php vendor/bin/php-coveralls

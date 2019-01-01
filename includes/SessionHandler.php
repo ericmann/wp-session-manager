@@ -18,18 +18,19 @@ use EAMann\Sessionz\Handler;
  * round trips to an external storage mechanism (or just leverage an in-
  * memory cache for read performance).
  */
-abstract class SessionHandler implements Handler {
+abstract class SessionHandler implements Handler
+{
 
     /**
-     * Sanitize a potential Session ID so we aren't fetching broken data
+     * Sanitize a potential Session key so we aren't fetching broken data
      * from the options table.
      *
-     * @param string $id
+     * @param string $key Session key to sanitize.
      *
      * @return string
      */
-    protected function sanitize( $id ) {
-        return preg_replace( "/[^A-Za-z0-9_]/", '', $id );
+    protected function sanitize(string $key): string
+    {
+        return preg_replace('/[^A-Za-z0-9_]/', '', $key);
     }
-
 }

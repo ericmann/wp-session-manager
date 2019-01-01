@@ -12,7 +12,7 @@
  *
  * @return int
  */
-function wp_session_cache_expire()
+function wp_session_cache_expire(): int
 {
     _doing_it_wrong('wp_session_cache_expire', 'Please use native Session functionality: session_cache_expire', '3.0');
 
@@ -40,7 +40,7 @@ function wp_session_commit()
  *
  * @return bool
  */
-function wp_session_decode($data)
+function wp_session_decode(string $data)
 {
     _doing_it_wrong('wp_session_decode', 'Please use native Session functionality: session_decode', '3.0');
 
@@ -54,7 +54,7 @@ function wp_session_decode($data)
  *
  * @return string
  */
-function wp_session_encode()
+function wp_session_encode(): string
 {
     _doing_it_wrong('wp_session_encode', 'Please use native Session functionality: session_encode', '3.0');
 
@@ -70,10 +70,13 @@ function wp_session_encode()
  *
  * @return bool
  */
-function wp_session_regenerate_id($delete_old_session = false)
+function wp_session_regenerate_id(bool $delete_old_session = false): int
 {
-    _doing_it_wrong('wp_session_regenerate_id', 'Please use native Session functionality: session_regenerate_id',
-        '3.0');
+    _doing_it_wrong(
+        'wp_session_regenerate_id',
+        'Please use native Session functionality: session_regenerate_id',
+        '3.0'
+    );
 
     return session_regenerate_id($delete_old_session);
 }
@@ -87,7 +90,7 @@ function wp_session_regenerate_id($delete_old_session = false)
  *
  * @return bool
  */
-function wp_session_start()
+function wp_session_start(): bool
 {
     _doing_it_wrong('wp_session_start', 'Please use native Session functionality: session_start', '3.0');
 
@@ -103,7 +106,7 @@ function wp_session_start()
  *
  * @return int
  */
-function wp_session_status()
+function wp_session_status(): int
 {
     _doing_it_wrong('wp_session_status', 'Please use native Session functionality: session_status', '3.0');
 
@@ -159,41 +162,44 @@ function wp_session_register_garbage_collection()
     _doing_it_wrong('wp_session_register_garbage_collection', 'Sessions are cleaned up natively.', '3.0');
 }
 
-if ( ! class_exists('WP_Session') ) :
-class WP_Session implements ArrayAccess {
-    public static function get_instance()
+// phpcs:disable
+if (!class_exists('WP_Session')) :
+    class WP_Session implements ArrayAccess
     {
-        _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
+        public static function get_instance(): WP_Session
+        {
+            _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
 
-        return new WP_Session();
+            return new WP_Session();
+        }
+
+        public function offsetExists($offset)
+        {
+            _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
+
+            return isset($_SESSION[$offset]);
+        }
+
+        public function offsetGet($offset)
+        {
+            _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
+
+            return $_SESSION[$offset];
+        }
+
+        public function offsetSet($offset, $value)
+        {
+            _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
+
+            $_SESSION[$offset] = $value;
+        }
+
+        public function offsetUnset($offset)
+        {
+            _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
+
+            unset($_SESSION[$offset]);
+        }
     }
-
-    public function offsetExists($offset)
-    {
-        _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
-
-        return isset($_SESSION[$offset]);
-    }
-
-    public function offsetGet($offset)
-    {
-        _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
-
-        return $_SESSION[$offset];
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
-
-        $_SESSION[$offset] = $value;
-    }
-
-    public function offsetUnset($offset)
-    {
-        _doing_it_wrong('WP_Session::get_instance', 'Please use native Session functionality.', '3.0');
-
-        unset($_SESSION[$offset]);
-    }
-}
 endif;
+// phpcs:enable

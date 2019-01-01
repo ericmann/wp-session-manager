@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<phpunit
+        bootstrap="vendor/autoload.php"
+        backupGlobals="false"
+        colors="true"
+        convertErrorsToExceptions="true"
+        convertNoticesToExceptions="true"
+        convertWarningsToExceptions="true"
+>
+    <testsuites>
+        <testsuite name="tests">
+            <directory suffix="Test.php">tests</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">includes</directory>
+        </whitelist>
+    </filter>
+    <php>
+        <ini name="error_reporting" value="32767"/>
+        <ini name="display_errors" value="1"/>
+        <ini name="display_startup_errors" value="1"/>
+    </php>
+    <logging>
+        <log type="coverage-clover" target="build/logs/clover.xml"/>
+    </logging>
+</phpunit>
