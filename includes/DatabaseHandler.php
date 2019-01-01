@@ -132,7 +132,7 @@ class DatabaseHandler extends SessionHandler
      *
      * @return bool|int false if the row could not be inserted or the number of affected rows (which will always be 1).
      */
-    protected function directWrite(string $key, string $data, ?int $expires = null)
+    protected function directWrite(string $key, string $data, int $expires = null)
     {
         global $wpdb;
 
