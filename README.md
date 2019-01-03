@@ -73,6 +73,7 @@ Changelog
 **4.1.0**
 - Fix: Add some defense to ensure end users are running the correct version of PHP before loading the system.
 - Fix: Eliminate a race condition where another plugin or the theme created the session first.
+- Fix: Schedule a cron to auto-delete expired sessions.
 
 **4.0.0**
 - New: Add an object cache based handler to leverage Redis or Memcached if available for faster queries.

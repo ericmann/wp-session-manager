@@ -252,11 +252,21 @@ class DatabaseHandler extends SessionHandler
      * @param int $maxlifetime (Unused).
      * @param callable $next Next clean operation in the stack.
      *
-     * @global \wpdb $wpdb
-     *
      * @return mixed
      */
     public function clean($maxlifetime, $next)
+    {
+        self::directClean();
+
+        return $next($maxlifetime);
+    }
+
+    /**
+     * Update the database by removing any sessions that are no longer valid
+     *
+     * @global \wpdb $wpdb
+     */
+    public static function directClean()
     {
         global $wpdb;
 
@@ -269,7 +279,5 @@ class DatabaseHandler extends SessionHandler
                 )
             );
         }
-
-        return $next($maxlifetime);
     }
 }

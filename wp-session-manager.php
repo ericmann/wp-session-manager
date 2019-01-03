@@ -53,6 +53,22 @@ function wp_session_manager_initialize()
             $wp_session_handler->addHandler(new \EAMann\WPSession\OptionsHandler());
         } else {
             $wp_session_handler->addHandler(new \EAMann\WPSession\DatabaseHandler());
+
+            /**
+             * The database handler can automatically clean up sessions as it goes. By default,
+             * we'll run the cleanup routine every hour to catch any stale sessions that PHP's
+             * garbage collector happens to miss. This timeout can be filtered to increase or
+             * decrease the frequency of the manual purge.
+             *
+             * @param string $timeout Interval with which to purge stale sessions
+             */
+            $timeout = apply_filters('wp_session_gc_interval', 'hourly');
+
+            if (!wp_next_scheduled('wp_session_database_gc')) {
+                wp_schedule_event(time(), $timeout, 'wp_session_database_gc');
+            }
+
+            add_action('wp_session_database_gc', ['EAMann\WPSession\DatabaseHandler', 'directClean']);
         }
 
         // If we have an external object cache, let's use it!
@@ -77,10 +93,11 @@ function wp_session_manager_initialize()
     }
 
     // Create the required table.
-    add_action('admin_init', ['EAMann\WPSession\DatabaseHandler', 'createTable']);
-    add_action('wp_session_init', ['EAMann\WPSession\DatabaseHandler', 'createTable']);
-    add_action('wp_install', ['EAMann\WPSession\DatabaseHandler', 'createTable']);
-    register_activation_hook(__FILE__, ['EAMann\WPSession\DatabaseHandler', 'createTable']);
+    \EAMann\WPSession\DatabaseHandler::createTable();
+
+    register_deactivation_hook(__FILE__, function () {
+        wp_clear_scheduled_hook('wp_session_database_gc');
+    });
 }
 
 /**
@@ -127,14 +144,10 @@ function wp_session_manager_start_session()
 if (version_compare(PHP_VERSION, WP_SESSION_MINIMUM_PHP_VERSION, '<')) {
     add_action('admin_notices', 'wp_session_manager_deactivated_notice');
 } else {
-    $bootstrap = \EAMann\WPSession\DatabaseHandler::createTable();
+    add_action('plugins_loaded', 'wp_session_manager_initialize', 1, 0);
 
-    if (!is_wp_error($bootstrap)) {
-        add_action('plugins_loaded', 'wp_session_manager_initialize', 1, 0);
-
-        // Start up session management, if we're not in the CLI.
-        if (!defined('WP_CLI') || false === WP_CLI) {
-            add_action('plugins_loaded', 'wp_session_manager_start_session', 10, 0);
-        }
+    // Start up session management, if we're not in the CLI.
+    if (!defined('WP_CLI') || false === WP_CLI) {
+        add_action('plugins_loaded', 'wp_session_manager_start_session', 10, 0);
     }
 }
