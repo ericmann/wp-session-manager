@@ -11,7 +11,7 @@
  * @package WP Session Manager
  */
 
-if(!defined('WP_SESSION_MINIMUM_PHP_VERSION')) {
+if (!defined('WP_SESSION_MINIMUM_PHP_VERSION')) {
     define('WP_SESSION_MINIMUM_PHP_VERSION', '7.1.0');
 }
 
@@ -62,10 +62,11 @@ function wp_session_manager_initialize()
 /**
  * Print an admin notice if we're on a bad version of PHP.
  */
-function wp_session_manager_deactivated_notice() {
+function wp_session_manager_deactivated_notice()
+{
     $message = sprintf(
         __(
-            'WP Session Manager requires PHP %s or newer. Your system is running PHP %s. Sessions are disabled. Please contact your system administrator to upgrade!',
+            'WP Session Manager requires PHP %s or newer. Please contact your system administrator to upgrade!',
             'wp-session-manager'
         ),
         WP_SESSION_MINIMUM_PHP_VERSION,
