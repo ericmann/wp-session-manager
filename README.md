@@ -56,6 +56,9 @@ None
 Changelog
 ---------
 
+**4.1.0**
+- Fix: Add some defense to ensure end users are running the correct version of PHP before loading the system.
+
 **4.0.0**
 - New: Add an object cache based handler to leverage Redis or Memcached if available for faster queries.
 - New: Adopt the Contributor Covenant (v1.4) as the project's official code of conduct.
@@ -161,7 +164,7 @@ Additional Information
 **Requires at least:** 4.7  
 **Tested up to:** 5.0.2  
 **Requires PHP:** 7.1  
-**Stable tag:** 4.0.0  
+**Stable tag:** 4.1.0  
 **License:** GPLv2 or later  
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html
 
