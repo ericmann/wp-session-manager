@@ -48,6 +48,20 @@ Absolutely! As of version 2.0, this plugin will create a new table for WordPress
 define( 'WP_SESSION_USE_OPTIONS', true );
 ```
 
+**I get an error saying my PHP version is out of date. Why?**
+
+PHP 5.6 was designated end-of-life and stopped receiving security patches in December 2018. PHP 7.0 was _also_ marked end-of-life in December 2018. The minimum version of PHP supported by WP Session Manager is now PHP 7.1.
+
+If your server is running an older version of PHP, the session system _will not work!_ To avoid triggering a PHP error, the plugin will instead output this notice to upgrade and disable itself silently. You won't see a PHP error, but you also won't get session support.
+
+Reach out to your hosting provider or system administrator to upgrade your server.
+
+**I get an error saying another plugin is setting up a session. What can I do?**
+
+WP Session Manager overrides PHP's default session implementation with its own custom handler. Unfortunately, we can't swap in a new handler if a session is already active. This plugin hooks into the `plugins_loaded` hook to set things up as early as possible, but if you have code in _another_ plugin (or your theme) that attempts to invoke `session_start()` before WP Session Manager loads, then the custom handler won't work at all.
+
+Inspect your other plugins and try to find the one that's interfering. Then, reach out to the developer to explain the conflict and see if they have a fix.
+
 Screenshots
 -----------
 
@@ -58,6 +72,7 @@ Changelog
 
 **4.1.0**
 - Fix: Add some defense to ensure end users are running the correct version of PHP before loading the system.
+- Fix: Eliminate a race condition where another plugin or the theme created the session first.
 
 **4.0.0**
 - New: Add an object cache based handler to leverage Redis or Memcached if available for faster queries.

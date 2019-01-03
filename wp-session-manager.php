@@ -15,6 +15,21 @@ if (!defined('WP_SESSION_MINIMUM_PHP_VERSION')) {
     define('WP_SESSION_MINIMUM_PHP_VERSION', '7.1.0');
 }
 
+$wp_session_messages = [
+    'bad_php_version' => sprintf(
+        __(
+            'WP Session Manager requires PHP %s or newer. Please contact your system administrator to upgrade!',
+            'wp-session-manager'
+        ),
+        WP_SESSION_MINIMUM_PHP_VERSION,
+        PHP_VERSION
+    ),
+    'multiple_sessions' => __(
+        'Another plugin is attempting to start a session with WordPress. WP Session Manager will not work!',
+        'wp-session-manager'
+    )
+];
+
 /**
  * Initialize the plugin, bootstrap autoloading, and register default hooks
  */
@@ -29,28 +44,37 @@ function wp_session_manager_initialize()
         exit('WP Session Manager requires Composer autoloading, which is not configured');
     }
 
-    // Queue up the session stack.
-    $wp_session_handler = EAMann\Sessionz\Manager::initialize();
+    if (!isset($_SESSION)) {
+        // Queue up the session stack.
+        $wp_session_handler = EAMann\Sessionz\Manager::initialize();
 
-    // Fall back to database storage where needed.
-    if (defined('WP_SESSION_USE_OPTIONS') && WP_SESSION_USE_OPTIONS) {
-        $wp_session_handler->addHandler(new \EAMann\WPSession\OptionsHandler());
-    } else {
-        $wp_session_handler->addHandler(new \EAMann\WPSession\DatabaseHandler());
+        // Fall back to database storage where needed.
+        if (defined('WP_SESSION_USE_OPTIONS') && WP_SESSION_USE_OPTIONS) {
+            $wp_session_handler->addHandler(new \EAMann\WPSession\OptionsHandler());
+        } else {
+            $wp_session_handler->addHandler(new \EAMann\WPSession\DatabaseHandler());
+        }
+
+        // If we have an external object cache, let's use it!
+        if (wp_using_ext_object_cache()) {
+            $wp_session_handler->addHandler(new EAMann\WPSession\CacheHandler());
+        }
+
+        // Decrypt the data surfacing from external storage.
+        if (defined('WP_SESSION_ENC_KEY') && WP_SESSION_ENC_KEY) {
+            $wp_session_handler->addHandler(new \EAMann\Sessionz\Handlers\EncryptionHandler(WP_SESSION_ENC_KEY));
+        }
+
+        // Use an in-memory cache for the instance if we can. This will only help in rare cases.
+        $wp_session_handler->addHandler(new \EAMann\Sessionz\Handlers\MemoryHandler());
+
+        $_SESSION['wp_session_manager'] = 'active';
     }
 
-    // If we have an external object cache, let's use it!
-    if (wp_using_ext_object_cache()) {
-        $wp_session_handler->addHandler(new EAMann\WPSession\CacheHandler());
+    if (! isset($_SESSION['wp_session_manager']) || $_SESSION['wp_session_manager'] !== 'active') {
+        add_action('admin_notices', 'wp_session_manager_multiple_sessions_notice');
+        return;
     }
-
-    // Decrypt the data surfacing from external storage.
-    if (defined('WP_SESSION_ENC_KEY') && WP_SESSION_ENC_KEY) {
-        $wp_session_handler->addHandler(new \EAMann\Sessionz\Handlers\EncryptionHandler(WP_SESSION_ENC_KEY));
-    }
-
-    // Use an in-memory cache for the instance if we can. This will only help in rare cases.
-    $wp_session_handler->addHandler(new \EAMann\Sessionz\Handlers\MemoryHandler());
 
     // Create the required table.
     add_action('admin_init', ['EAMann\WPSession\DatabaseHandler', 'createTable']);
@@ -60,21 +84,31 @@ function wp_session_manager_initialize()
 }
 
 /**
+ * Print an admin notice if too many plugins are manipulating sessions.
+ *
+ * @global array $wp_session_messages
+ */
+function wp_session_manager_multiple_sessions_notice()
+{
+    global $wp_session_messages;
+    ?>
+    <div class="notice notice-error">
+        <p><?php echo esc_html($wp_session_messages['multiple_sessions']); ?></p>
+    </div>
+    <?php
+}
+
+/**
  * Print an admin notice if we're on a bad version of PHP.
+ *
+ * @global array $wp_session_messages
  */
 function wp_session_manager_deactivated_notice()
 {
-    $message = sprintf(
-        __(
-            'WP Session Manager requires PHP %s or newer. Please contact your system administrator to upgrade!',
-            'wp-session-manager'
-        ),
-        WP_SESSION_MINIMUM_PHP_VERSION,
-        PHP_VERSION
-    );
+    global $wp_session_messages;
     ?>
     <div class="notice notice-error">
-        <p><?php echo esc_html($message); ?></p>
+        <p><?php echo esc_html($wp_session_messages['bad_php_version']); ?></p>
     </div>
     <?php
 }
@@ -84,9 +118,7 @@ function wp_session_manager_deactivated_notice()
  */
 function wp_session_manager_start_session()
 {
-    $bootstrap = \EAMann\WPSession\DatabaseHandler::createTable();
-
-    if (!is_wp_error($bootstrap) && session_status() !== PHP_SESSION_ACTIVE) {
+    if (session_status() !== PHP_SESSION_ACTIVE) {
         session_start();
     }
 }
@@ -95,10 +127,14 @@ function wp_session_manager_start_session()
 if (version_compare(PHP_VERSION, WP_SESSION_MINIMUM_PHP_VERSION, '<')) {
     add_action('admin_notices', 'wp_session_manager_deactivated_notice');
 } else {
-    wp_session_manager_initialize();
+    $bootstrap = \EAMann\WPSession\DatabaseHandler::createTable();
 
-    // Start up session management, if we're not in the CLI.
-    if (!defined('WP_CLI') || false === WP_CLI) {
-        add_action('plugins_loaded', 'wp_session_manager_start_session', 10, 0);
+    if (!is_wp_error($bootstrap)) {
+        add_action('plugins_loaded', 'wp_session_manager_initialize', 1, 0);
+
+        // Start up session management, if we're not in the CLI.
+        if (!defined('WP_CLI') || false === WP_CLI) {
+            add_action('plugins_loaded', 'wp_session_manager_start_session', 10, 0);
+        }
     }
 }
