@@ -3,9 +3,9 @@ Contributors:      ericmann
 Donate link:       https://paypal.me/eam
 Tags:              session
 Requires at least: 4.7
-Tested up to:      5.0.2
+Tested up to:      5.1.0
 Requires PHP:      7.1
-Stable tag:        4.1.0
+Stable tag:        4.1.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,6 +73,10 @@ Inspect your other plugins and try to find the one that's interfering. Then, rea
 None
 
 == Changelog ==
+
+= 4.1.1 =
+* Fix: Defensively protect deprecated functions with `function_exists()` checks to avoid conflicts with other systems.
+- Fix: Disable the initialization routine if sessions are disabled.
 
 = 4.1.0 =
 * Fix: Add some defense to ensure end users are running the correct version of PHP before loading the system.

@@ -3,7 +3,7 @@
  * Plugin Name: WP Session Manager
  * Plugin URI:  https://paypal.me/eam
  * Description: Session management for WordPress.
- * Version:     4.1.0
+ * Version:     4.1.1
  * Author:      Eric Mann
  * Author URI:  https://eamann.com
  * License:     GPLv2+
@@ -144,10 +144,9 @@ function wp_session_manager_start_session()
 if (version_compare(PHP_VERSION, WP_SESSION_MINIMUM_PHP_VERSION, '<')) {
     add_action('admin_notices', 'wp_session_manager_deactivated_notice');
 } else {
-    add_action('plugins_loaded', 'wp_session_manager_initialize', 1, 0);
-
     // Start up session management, if we're not in the CLI.
-    if (!defined('WP_CLI') || false === WP_CLI) {
+    if (session_status() !== PHP_SESSION_DISABLED && (!defined('WP_CLI') || false === WP_CLI)) {
+        add_action('plugins_loaded', 'wp_session_manager_initialize',    1,  0);
         add_action('plugins_loaded', 'wp_session_manager_start_session', 10, 0);
     }
 }
