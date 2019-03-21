@@ -165,7 +165,7 @@ Upgrade Notice
 This version requires PHP 7.1 or higher.
 
 **3.0**
-This version requires PHP 5.6 or higher and uses Composer-powered autoloading to incorporate Sessionz for transparent session management.
+This version requires PHP 5.6 or higher and uses Composer-powered autoloading to incorporate [Sessionz](https://github.com/ericmann/sessionz) for transparent session management.
 
 **2.0**
 
