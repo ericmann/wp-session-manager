@@ -133,10 +133,12 @@ function wp_session_manager_deactivated_notice()
 /**
  * If a session hasn't already been started by some external system, start one!
  */
-function wp_session_manager_start_session()
-{
-    if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start();
+if ( ! function_exists( 'wp_session_manager_start_session' )) {
+    function wp_session_manager_start_session()
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
     }
 }
 
