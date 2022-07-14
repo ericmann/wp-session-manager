@@ -146,11 +146,11 @@ if (version_compare(PHP_VERSION, WP_SESSION_MINIMUM_PHP_VERSION, '<')) {
 } else {
     // Start up session management, if we're not in the CLI.
     if (session_status() !== PHP_SESSION_DISABLED && (!defined('WP_CLI') || false === WP_CLI)) {
-        add_action('plugins_loaded', 'wp_session_manager_initialize',    1,  0);
+        add_action('after_setup_theme', 'wp_session_manager_initialize',    1,  0);
 
         // If we're not in a cron, start the session
         if (!defined('DOING_CRON') || false === DOING_CRON) {
-            add_action('plugins_loaded', 'wp_session_manager_start_session', 10, 0);
+            add_action('after_setup_theme', 'wp_session_manager_start_session', 10, 0);
         }
     }
 }
